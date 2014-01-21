@@ -1,5 +1,5 @@
 /*
- * W - a tiny 2D game development library
+ * W - simple cross-platform OpenGL windows
  *
  * =============
  *  Event.cpp
@@ -11,75 +11,36 @@
  */
 
 #include "Event.h"
-#if defined WTARGET_MAC
-	#include <Cocoa/Cocoa.h>
-#endif
 
-W::EventType::T W::Event::_typecounter = 100;
-std::vector<W::Event*> W::Event::_events;
-W::Mutex W::Event::_mutex;
+#pragma mark - Constructor
 
-W::Event::Event(EventType::T _type) : type(_type) { }
-W::Event::Event(EventType::T _type, const v2i &_pos) : type(_type), pos(_pos) { }
-W::Event::Event(EventType::T _type, KeyCode::T _key) : type(_type), key(_key) { }
-W::Event::Event(EventType::T _type, float _x) : type(_type), x(_x) { }
-W::Event::Event(EventType::T _type, int _touchID, const v2i &_pos, const v2i &_prev_pos) : type(_type), touchID(_touchID), pos(_pos), prev_pos(_prev_pos) { }
+W::Event::Event(W::EventType::T _type) : type(_type) { }
 
-std::string W::Event::_printType() {
-	using namespace EventType;
-	std::stringstream ss;
-	switch(type) {
-		case KeyDown           : { ss << "KeyDown"; break; }
-		case KeyUp             : { ss << "KeyUp"; break; }
-		case MouseMove         : { ss << "MouseMove"; break; }
-		case LMouseUp          : { ss << "LMouseUp"; break; }
-		case LMouseDown        : { ss << "LMouseDown"; break; }
-		case RMouseUp          : { ss << "RMouseUp"; break; }
-		case RMouseDown        : { ss << "RMouseDown"; break; }
-		case TouchDown         : { ss << "TouchDown"; break; }
-		case TouchMoved        : { ss << "TouchMoved"; break; }
-		case TouchUp           : { ss << "TouchUp"; break; }
-		case TouchCancelled    : { ss << "TouchCancelled"; break; }
-		case ScreenEdgeTop     : { ss << "ScreenEdgeTop"; break; }
-		case ScreenEdgeBottom  : { ss << "ScreenEdgeBottom"; break; }
-		case ScreenEdgeLeft    : { ss << "ScreenEdgeLeft"; break; }
-		case ScreenEdgeRight   : { ss << "ScreenEdgeRight"; break; }
-		case ButtonClick       : { ss << "ButtonClick"; break; }
-		case Closed            : { ss << "Closed"; break; }
-		case Unknown           : { ss << "Unknown"; break; }
-		default : break;
-	}
-	return ss.str();
-}
+
+#pragma mark - Statics
+
+bool W::Event::on = false;
+std::vector<W::Event> W::Event::newEvents;
+unsigned int W::Event::typecounter = 100;
 
 W::EventType::T W::Event::registerType() {
-	return _typecounter++;
+	return typecounter++;
 }
+
 W::KeyCode::T W::Event::charToKeycode(unsigned int c) {
-	if (c == ' ') return W::KeyCode::SPACE;
-	if (c >= 'a' && c <= 'z') return (W::KeyCode::T) ((int)W::KeyCode::_A + c - 'a');
-	if (c >= 'A' && c <= 'Z') return (W::KeyCode::T) ((int)W::KeyCode::_A + c - 'A');
-	if (c >= '0' && c <= '9') return (W::KeyCode::T) ((int)W::KeyCode::_0 + c - '0');
-	if (c == 27) return W::KeyCode::ESC;		// These are standard ASCII codes
-	if (c == 13) return W::KeyCode::RETURN;		//
-	if (c == 8)  return W::KeyCode::BACKSPACE;	//
-	if (c == 9)  return W::KeyCode::TAB;		//
+	if (c == ' ') return KeyCode::SPACE;
+	if (c >= 'a' && c <= 'z') return (KeyCode::T) ((int)KeyCode::_A + c - 'a');
+	if (c >= 'A' && c <= 'Z') return (KeyCode::T) ((int)KeyCode::_A + c - 'A');
+	if (c >= '0' && c <= '9') return (KeyCode::T) ((int)KeyCode::_0 + c - '0');
+	if (c == 27) return KeyCode::ESC;		// Standard ASCII codes
+	if (c == 13) return KeyCode::RETURN;		//
+	if (c == 8)  return KeyCode::BACKSPACE;	//
+	if (c == 9)  return KeyCode::TAB;		//
 	#ifdef WTARGET_MAC
-		if (c == NSLeftArrowFunctionKey)  return W::KeyCode::LEFT_ARROW;
-		if (c == NSRightArrowFunctionKey) return W::KeyCode::RIGHT_ARROW;
-		if (c == NSUpArrowFunctionKey)    return W::KeyCode::UP_ARROW;
-		if (c == NSDownArrowFunctionKey)  return W::KeyCode::DOWN_ARROW;
+		if (c == NSLeftArrowFunctionKey)  return KeyCode::LEFT_ARROW;
+		if (c == NSRightArrowFunctionKey) return KeyCode::RIGHT_ARROW;
+		if (c == NSUpArrowFunctionKey)    return KeyCode::UP_ARROW;
+		if (c == NSDownArrowFunctionKey)  return KeyCode::DOWN_ARROW;
 	#endif
-	return W::KeyCode::K_OTHER;
-}
-void W::Event::_addEvent(W::Event *ev) {
-	#if defined(WTARGET_WIN)
-		_mutex.lock();
-	#endif
-	
-	Event::_events.push_back(ev);
-	
-	#if defined(WTARGET_WIN)
-		_mutex.unlock();
-	#endif
+	return KeyCode::K_OTHER;
 }

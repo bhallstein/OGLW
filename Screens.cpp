@@ -1,8 +1,8 @@
 /*
- * W - a tiny 2D game development library
+ * W - simple cross-platform OpenGL windows
  *
  * ===============
- *  Returny.cpp
+ *  Screens.cpp
  * ===============
  *
  * Copyright (C) 2012 - Ben Hallstein - http://ben.am
@@ -10,7 +10,9 @@
  *
  */
 
-#include "Returny.h"
+#include "Screens.h"
+#include <Cocoa/Cocoa.h>
 
-W::Returny W::KillerReturny(ReturnyType::Killer);
-W::Returny W::EmptyReturny(ReturnyType::Empty);
+int W::numberOfScreens() {
+	return (int) [[NSScreen screens] count];
+}
