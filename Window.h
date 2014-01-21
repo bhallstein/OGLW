@@ -1,5 +1,5 @@
 /*
- * W - a tiny 2D game development library
+ * W - simple cross-platform OpenGL windows
  *
  * ============
  *  Window.h
@@ -10,72 +10,48 @@
  *
  */
 
-// Window encapsulates a window on the device, and the View and OpenGL
-// state associated with it.
+#ifndef __OGLMultiWindowTest__Window__
+#define __OGLMultiWindowTest__Window__
 
-#ifndef __W_Window
-#define __W_Window
-
-#include "types.h"
-#include "Colour.h"
-#include "Event.h"
-
-#ifdef WTARGET_WIN
-	#include "Windows.h"
-#endif
+class WInt_WindowAbstr;
 
 namespace W {
 
-	class View;
-	
 	class Window {
 	public:
-		Window(const v2i &, const std::string &title);
-		virtual ~Window();
+		Window(
+			   int width,
+			   int height,
+			   const char *title,
+			   int posx, int posy,
+			   Window *share,
+			   bool fullscreen,
+			   int screen
+			   );
+		~Window();
 		
-		const v2i& getSize() { return sz; }
-		void setTitle(const std::string &);
+		// Passthru methods
+		void makeCurrentContext();
+		void clearCurrentContext();
 		
-		void setOpenGLThreadAffinity();
-		void clearOpenGLThreadAffinity();
-			// Call to give the current thread access to the GL context
+		void flushBuffer();
 		
-		void setUpViewport();
-		void beginDrawing();	// Prepare to start new drawing cycle
-		void flushBuffer();		// Draw to the screen
+		void setTitle(const char *);
+		void getSize(int *w, int *h);
 		
-		enum Mode { Windowed, FullScreen } mode;
+		void bringToFront();
+		void makeFirstResp();
 		
-		void generateMouseMoveEvent();
+		void goFullscreen();
+		void goFullscreenOn(int screen);
+		void goWindowed();
 		
-		void updateSize(const v2i &);
-			// Mac - called by the Window object
-			// iOS - called by the EAGLView object
-			// Win - ...
-		
-		#if defined WTARGET_WIN
-			LRESULT CALLBACK _WndProc(HWND, UINT, WPARAM, LPARAM);
-		#endif
-		
-		bool winSizeHasChanged;
+		int numberOfScreens();
 		
 	private:
-		void createWindow();
-		void closeWindow();
-		void setUpOpenGL();
-		void setUpForDrawing();
-		v2i getMousePosition();
+		WInt_WindowAbstr *windowAbstr;
 		
-		v2i sz;
-		
-		struct Objs;
-		Objs *objs;
-		
-		struct Initializer;
-		static Initializer *init;
 	};
-	
-	extern bool Retina;
 	
 }
 

@@ -1,5 +1,5 @@
 /*
- * W - a tiny 2D game development library
+ * W - simple cross-platform OpenGL windows
  *
  * ===========
  *  Event.h
@@ -10,16 +10,17 @@
  *
  */
 
-#ifndef __W__MisterEvent
-#define __W__MisterEvent
+#ifndef OGLMultiWindowTest_Event_h
+#define OGLMultiWindowTest_Event_h
 
-#include "types.h"
-#include "Mutex.h"
+#include <vector>
 
 namespace W {
 	
+	class Window;
+	
 	namespace EventType {
-		typedef int T;
+		typedef unsigned int T;
 		enum {
 			// Key
 			KeyDown, KeyUp,
@@ -28,14 +29,23 @@ namespace W {
 			MouseMove, LMouseUp, LMouseDown, RMouseUp, RMouseDown,	// Mouse
 			TouchDown, TouchMoved, TouchUp, TouchCancelled,			// Touch
 			
+			// Scroll wheel
+			ScrollWheel,
+			
 			// ScreenEdge
 			ScreenEdgeTop, ScreenEdgeBottom, ScreenEdgeLeft, ScreenEdgeRight,
 			
-			// UI
-			ButtonClick,
+			// Windowing
+			WinClosed,
+			WinResized,
+			WinMinimized, WinDeminimized,
+			WinBecameKey, WinStoppedBeingKey,
+			
+			// Application activeness
+			AppBecameForeground, AppBecameBackground,
 			
 			// Other
-			Closed, Unknown
+			Unknown
 		};
 	}
 	
@@ -68,37 +78,64 @@ namespace W {
 	
 	class Event {
 	public:
+		
+		// Information for different event types is saved in a struct type.
+		// To limit object size, the structs are stored in a union - use whichever
+		// member of the union is appropriate.
+		// (This is based on SFML's event class.)
+		
 		Event(EventType::T);
-		Event(EventType::T, const v2i &);
-		Event(EventType::T, KeyCode::T);
-		Event(EventType::T, float _x);
-		Event(EventType::T, int _touchID, const v2i &_pos, const v2i &_prev_pos = v2i(-1,-1));
 		
-		std::string _printType();
+		struct MouseEvent {
+			int x, y;
+			Window *window;
+		};
+		struct KeyEvent {
+			KeyCode::T keyCode;
+		};
+		struct ScrollEvent {
+			int dx, dy;
+			Window *window;
+		};
+		struct WindowEvent {
+			Window *window;
+		};
+		struct TouchEvent {
+			int x, y;
+			int touchID;
+		};
 		
-		v2i pos;
-		v2i prev_pos;
 		EventType::T type;
-		KeyCode::T key;
-		float x;
-		int touchID;
-		void *_payload;
 		
-		static W::EventType::T registerType();
-		static W::KeyCode::T charToKeycode(unsigned int c);
+		union {
+			KeyEvent    keyEvent;
+			MouseEvent  mouseEvent;
+			ScrollEvent scrollEvent;
+			TouchEvent  touchEvent;
+			WindowEvent winEvent;
+		};
 		
-		static std::vector<W::Event*> _events;
-		static void _addEvent(W::Event *);
-			// W's event queue
+		// Turn event harvesting on/off by setting this property.
+		static bool on;
 		
-		static Mutex _mutex;
-			// On windows due to MMT usage the event harvesting
-			// code is on a sep. thread to the update cycle.
+		// When event harvesting is on, events are stored in newEvents.
+		// Iterate over them in your update cycle, then clear them.
+		static std::vector<Event> newEvents;
+		
+		// Register custom event types using registerType():
+		// .h:   extern EventType::T MyEventType;
+		// .cpp: EventType::T MyEventType = Event::registerType();
+		static EventType::T registerType();
+		
+		static KeyCode::T   charToKeycode(unsigned int c);
 		
 	private:
-		static int _typecounter;
+		static unsigned int typecounter;
+		
 	};
-	
 }
+
+
+
 
 #endif
