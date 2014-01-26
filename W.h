@@ -1,10 +1,14 @@
-//
-//  W.h
-//  OGLMultiWindowTest
-//
-//  Created by Ben on 21/01/2014.
-//  Copyright (c) 2014 Ben. All rights reserved.
-//
+/*
+ * W - simple cross-platform OpenGL windows
+ *
+ * =======
+ *  W.h
+ * =======
+ *
+ * Copyright (C) 2012 - Ben Hallstein - http://ben.am
+ * Published under the MIT license: http://opensource.org/licenses/MIT
+ *
+ */
 
 #ifndef OGLMultiWindowTest_W_h
 #define OGLMultiWindowTest_W_h

@@ -21,7 +21,7 @@ W::Event::Event(W::EventType::T _type) : type(_type) { }
 
 bool W::Event::on = false;
 std::vector<W::Event> W::Event::newEvents;
-unsigned int W::Event::typecounter = 100;
+unsigned int W::Event::typecounter = W::EventType::Count;
 
 W::EventType::T W::Event::registerType() {
 	return typecounter++;
