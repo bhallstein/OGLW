@@ -46,8 +46,6 @@ namespace W {
 		void goFullscreenOn(int screen);
 		void goWindowed();
 		
-		int numberOfScreens();
-		
 	private:
 		WInt_WindowAbstr *windowAbstr;
 		
