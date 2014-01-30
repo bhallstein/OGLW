@@ -15,11 +15,16 @@
 
 #include "WInt_PlatformIdentification.h"
 
+
+
 #ifdef WTARGET_MAC
 	#include "WInt_WindowOSX.h"
 #elif defined WTARGET_WIN
-	#inlcude "WInt_WindowWin.h"
+	#include "WInt_WindowWin.h"
 #endif
+
+
+// make_WInt_Window()
 
 WInt_WindowAbstr* make_WInt_Window(
 								   int w, int h,
@@ -36,7 +41,7 @@ WInt_WindowAbstr* make_WInt_Window(
 	#ifdef WTARGET_MAC
 		win = new WInt_WindowOSX(w, h, t, posx, posy, (WInt_WindowOSX*)share, fullscreen, screen, windowID);
 	#elif defined WTARGET_WIN
-		dkjghkdjgh
+		win = new WInt_WindowWin(w, h, t, posx, posy, (WInt_WindowWin*)share, fullscreen, screen, windowID);
 	#endif
 	
 	return win;

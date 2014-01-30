@@ -11,8 +11,25 @@
  */
 
 #include "Screens.h"
-#include <Cocoa/Cocoa.h>
+#include "WInt_PlatformIdentification.h"
 
-int W::numberOfScreens() {
-	return (int) [[NSScreen screens] count];
-}
+#ifdef WTARGET_MAC
+
+	#include <Cocoa/Cocoa.h>
+	
+	int W::numberOfScreens() {
+		return (int) [[NSScreen screens] count];
+	}
+
+
+#elif defined WTARGET_WIN
+	
+	#include "GLFW/glfw3.h"
+	
+	int W::numberOfScreens() {
+		int count;
+		glfwGetMonitors(&count);
+		return count;
+	}
+
+#endif

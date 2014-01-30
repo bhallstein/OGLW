@@ -45,10 +45,13 @@ namespace W {
 		void goFullscreen();
 		void goFullscreenOn(int screen);
 		void goWindowed();
+
+		void getEvents();	// Only has any effect on windows
 		
 		int numberOfScreens();
 		
 	private:
+		Window(const Window &) { }
 		WInt_WindowAbstr *windowAbstr;
 		
 	};

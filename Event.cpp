@@ -42,5 +42,5 @@ W::KeyCode::T W::Event::charToKeycode(unsigned int c) {
 		if (c == NSUpArrowFunctionKey)    return KeyCode::UP_ARROW;
 		if (c == NSDownArrowFunctionKey)  return KeyCode::DOWN_ARROW;
 	#endif
-	return KeyCode::K_OTHER;
+	return KeyCode::UNKNOWN;
 }

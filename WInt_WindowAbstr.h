@@ -34,16 +34,20 @@ public:
 	virtual void goFullscreenOnCurScreen() = 0;
 	virtual void goFullscreenOn(int screen) = 0;
 	virtual void goWindowed() = 0;
+
+	virtual void getEvents() { }	// Def. impl does nothing; overridden on windows
 };
 
 WInt_WindowAbstr* make_WInt_Window(
-								   int w, int h,
+								   int w,
+								   int h,
 								   const char *t,
-								   int posx, int posy,
+								   int posx,
+								   int posy,
 								   WInt_WindowAbstr *share,
 								   bool fullscreen,
 								   int screen,
-								   void *windowID
+								   void *windowID	// Pointer to the W::Window, for OS X event passing, & ...?
 								  );
 // If position is -ve, window will be centred
 // 'screen' currently ignored

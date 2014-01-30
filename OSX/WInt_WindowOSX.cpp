@@ -88,7 +88,7 @@ void WInt_WindowOSX::goWindowed() {
 }
 
 
-#pragma mark - Subscr to active application changes
+#pragma mark - Init: subscr. to active application changes
 
 struct WInt_WindowOSX::Init {
 	Init() {

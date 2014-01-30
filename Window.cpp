@@ -14,6 +14,8 @@
 #include "WInt_WindowAbstr.h"
 #include <iostream>
 
+// Window
+
 W::Window::Window(
 				 int width,
 				 int height,
@@ -57,3 +59,5 @@ void W::Window::makeFirstResp() { windowAbstr->makeFirstResp(); }
 void W::Window::goFullscreen() { windowAbstr->goFullscreenOnCurScreen(); }
 void W::Window::goFullscreenOn(int s) { windowAbstr->goFullscreenOn(s); }
 void W::Window::goWindowed() { windowAbstr->goWindowed(); }
+
+void W::Window::getEvents() { windowAbstr->getEvents(); }

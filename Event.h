@@ -72,7 +72,7 @@ namespace W {
 			ESC,   RETURN,  BACKSPACE,  _DELETE,  TAB,
 			HOME,  END,
 			
-			K_OTHER
+			UNKNOWN
 		};
 	}
 	
@@ -82,7 +82,7 @@ namespace W {
 		// Information for different event types is saved in a struct type.
 		// To limit object size, the structs are stored in a union - use whichever
 		// member of the union is appropriate.
-		// (This is based on SFML's event class.)
+		// (This system is based on SFML's event class.)
 		
 		Event(EventType::T);
 		
@@ -123,8 +123,8 @@ namespace W {
 		static std::vector<Event> newEvents;
 		
 		// Register custom event types using registerType():
-		// .h:   extern EventType::T MyEventType;
-		// .cpp: EventType::T MyEventType = Event::registerType();
+		// .h:   extern W::EventType::T MyEventType;
+		// .cpp: W::EventType::T MyEventType = Event::registerType();
 		static EventType::T registerType();
 		
 		static KeyCode::T   charToKeycode(unsigned int c);
