@@ -45,7 +45,9 @@ namespace W {
 			AppBecameForeground, AppBecameBackground,
 			
 			// Other
-			Unknown
+			Unknown,
+			
+			Count
 		};
 	}
 	
