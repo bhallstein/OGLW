@@ -48,8 +48,6 @@ namespace W {
 
 		void getEvents();	// Only has any effect on windows
 		
-		int numberOfScreens();
-		
 	private:
 		Window(const Window &) { }
 		WInt_WindowAbstr *windowAbstr;
