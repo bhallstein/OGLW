@@ -12,18 +12,37 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface XWindow : NSWindow
+@interface XWindow : NSObject
 
-@property (strong, nonatomic) NSOpenGLContext *context;
-@property NSPoint pos;
-@property NSSize size;
+-(instancetype)initWithWidth:(int)w height:(int)h sharedCtx:(XWindow*)s title:(NSString*)t fullscreen:(BOOL)f screen:(int)scrInd windowID:(void*)winID;
 
--(instancetype)initWithWidth:(int)w height:(int)h sharedCtx:(XWindow*)s posX:(int)px posY:(int)py title:(NSString*)t fullscreen:(BOOL)f  screen:(int)s windowID:(void*)winID;
+// Context things
+-(void)makeCurrentContext;
+-(void)clearCurrentContext;
+-(void)flushBuffer;
 
+// Windowy things
 -(void)bringToFront;
 -(void)makeFirstResponder;
--(void)goFullscreenOn:(int)screen savePrevFrame:(BOOL)yn;
-	// scr: -1 => current screen
+-(void)setTitle:(const char *)t;
+
+// Size & position
+-(void)getSizeW:(int*)w H:(int*)h;
+-(void)setSizeW:(int)w H:(int)h;
+
+-(void)getPosX:(int*)x Y:(int*)y;
+-(void)setPosX:(int)x Y:(int)y;
+
+-(void)setScreen:(int)screenInd;
+-(int)getScreen;
+
+-(void)goFullscreen;
 -(void)goWindowed;
+-(BOOL)isFullscreen;
+
+// Mouse
+-(BOOL)mouseIsOver;
+-(void)getMousePositionX:(int*)x Y:(int*)y;
+-(void)setMousePositionX:(int)x Y:(int)y;
 
 @end

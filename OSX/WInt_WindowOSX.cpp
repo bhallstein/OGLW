@@ -21,7 +21,6 @@ struct WInt_WindowOSX::NativeObjs {
 WInt_WindowOSX::WInt_WindowOSX(
 							   int w, int h,
 							   const char *t,
-							   int posx, int posy,
 							   WInt_WindowOSX *share,
 							   bool fullscreen,
 							   int screen,
@@ -32,8 +31,6 @@ WInt_WindowOSX::WInt_WindowOSX(
 	objs->xwindow = [[XWindow alloc] initWithWidth:w
 											height:h
 										 sharedCtx:(share ? share->objs->xwindow : nil)
-											  posX:posx
-											  posY:posy
 											 title:[NSString stringWithUTF8String:t]
 										fullscreen:fullscreen
 											screen:screen
@@ -48,43 +45,68 @@ WInt_WindowOSX::~WInt_WindowOSX()
 
 #pragma mark - WInt_WindowAbstr methods
 
+// OGL context
 void WInt_WindowOSX::makeCurrentContext() {
-	[objs->xwindow.context makeCurrentContext];
+	[objs->xwindow makeCurrentContext];
 }
-
 void WInt_WindowOSX::clearCurrentContext() {
-	[NSOpenGLContext clearCurrentContext];
+	[objs->xwindow clearCurrentContext];
 }
-
 void WInt_WindowOSX::flushBuffer() {
-	[objs->xwindow.context flushBuffer];
+	[objs->xwindow flushBuffer];
 }
 
+// Window attributes
 void WInt_WindowOSX::setTitle(const char *t) {
-	[objs->xwindow setTitle:[NSString stringWithUTF8String:t]];
+	[objs->xwindow setTitle:t];
 }
 
-void WInt_WindowOSX::getSize(int *w, int *h) {
-	*w = objs->xwindow.size.width;
-	*h = objs->xwindow.size.height;
-}
-
+// Respondery things
 void WInt_WindowOSX::bringToFront() {
 	[objs->xwindow bringToFront];
 }
-
 void WInt_WindowOSX::makeFirstResp() {
 	[objs->xwindow makeFirstResponder];
 }
 
-void WInt_WindowOSX::goFullscreenOnCurScreen() {
-	[objs->xwindow goFullscreenOn:-1 savePrevFrame:YES];
+// Size & position
+void WInt_WindowOSX::getSize(int *w, int *h) {
+	[objs->xwindow getSizeW:w H:h];
 }
-void WInt_WindowOSX::goFullscreenOn(int screen) {
-	[objs->xwindow goFullscreenOn:screen savePrevFrame:YES];
+void WInt_WindowOSX::setSize(int w, int h) {
+	[objs->xwindow setSizeW:w H:h];
+}
+void WInt_WindowOSX::getPos(int *x, int *y) {
+	[objs->xwindow getPosX:x Y:y];
+}
+void WInt_WindowOSX::setPos(int x, int y) {
+	[objs->xwindow setPosX:x Y:y];
+}
+void WInt_WindowOSX::setScreen(int screenInd) {
+	[objs->xwindow setScreen:screenInd];
+}
+int WInt_WindowOSX::getScreen() {
+	return [objs->xwindow getScreen];
+}
+void WInt_WindowOSX::goFullscreen() {
+	[objs->xwindow goFullscreen];
 }
 void WInt_WindowOSX::goWindowed() {
 	[objs->xwindow goWindowed];
+}
+bool WInt_WindowOSX::isInFullscreenMode() {
+	return [objs->xwindow isFullscreen];
+}
+
+// Mouse
+bool WInt_WindowOSX::mouseIsOver() {
+	return [objs->xwindow mouseIsOver];
+}
+void WInt_WindowOSX::getMousePosition(int *x, int *y) {
+	[objs->xwindow getMousePositionX:x Y:y];
+}
+void WInt_WindowOSX::setMousePosition(int x, int y) {
+	[objs->xwindow setMousePositionX:x Y:y];
 }
 
 

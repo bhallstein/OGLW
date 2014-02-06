@@ -17,20 +17,17 @@
 // Window
 
 W::Window::Window(
-				 int width,
-				 int height,
-				 const char *title,
-				 int posx, int posy,
-				 Window *share,
-				 bool fullscreen,
-				 int screen
-				 )
+				  int width,
+				  int height,
+				  const char *title,
+				  Window *share,
+				  bool fullscreen,
+				  int screen
+				  )
 {
 	windowAbstr = make_WInt_Window(width,
 								   height,
 								   title,
-								   posx,
-								   posy,
 								   share ? share->windowAbstr : 0,
 								   fullscreen,
 								   screen,
@@ -45,19 +42,36 @@ W::Window::~Window()
 
 #pragma mark - Passthru methods
 
-void W::Window::makeCurrentContext() { windowAbstr->makeCurrentContext(); }
+// OGL context
+void W::Window::makeCurrentContext()  { windowAbstr->makeCurrentContext(); }
 void W::Window::clearCurrentContext() { windowAbstr->clearCurrentContext(); }
+void W::Window::flushBuffer()         { windowAbstr->flushBuffer(); }
 
-void W::Window::flushBuffer() { windowAbstr->flushBuffer(); }
-
+// Win attribs
 void W::Window::setTitle(const char *t) { windowAbstr->setTitle(t); }
-void W::Window::getSize(int *w, int *h) { windowAbstr->getSize(w, h); }
 
-void W::Window::bringToFront() { windowAbstr->bringToFront(); }
+// Respondery
+void W::Window::bringToFront()  { windowAbstr->bringToFront(); }
 void W::Window::makeFirstResp() { windowAbstr->makeFirstResp(); }
 
-void W::Window::goFullscreen() { windowAbstr->goFullscreenOnCurScreen(); }
-void W::Window::goFullscreenOn(int s) { windowAbstr->goFullscreenOn(s); }
-void W::Window::goWindowed() { windowAbstr->goWindowed(); }
+// Size & pos
+void W::Window::getSize(int *w, int *h) { windowAbstr->getSize(w, h); }
+void W::Window::setSize(int w, int h)   { windowAbstr->setSize(w, h); }
 
+void W::Window::getPos(int *x, int *y) { windowAbstr->getPos(x, y); }
+void W::Window::setPos(int x, int y)   { windowAbstr->setPos(x, y); }
+
+int W::Window::getScreen()            { return windowAbstr->getScreen(); }
+void W::Window::setScreen(int screen) { windowAbstr->setScreen(screen); }
+
+void W::Window::goFullscreen() { windowAbstr->goFullscreen(); }
+void W::Window::goWindowed()   { windowAbstr->goWindowed(); }
+bool W::Window::isInFullscreenMode() { return windowAbstr->isInFullscreenMode(); }
+
+// Mouse
+bool W::Window::mouseIsOver() { return windowAbstr->mouseIsOver(); }
+void W::Window::getMousePosition(int *x, int *y) { windowAbstr->getMousePosition(x, y); }
+void W::Window::setMousePosition(int x, int y) { windowAbstr->setMousePosition(x, y); }
+
+// Events
 void W::Window::getEvents() { windowAbstr->getEvents(); }

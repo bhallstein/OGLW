@@ -20,7 +20,6 @@ public:
 	WInt_WindowOSX(
 				   int w, int h,
 				   const char *t,
-				   int posx, int posy,
 				   WInt_WindowOSX *share,
 				   bool fullscreen,
 				   int screen,
@@ -28,19 +27,36 @@ public:
 				   );
 	~WInt_WindowOSX();
 	
+	// OGL Context
 	void makeCurrentContext();
 	void clearCurrentContext();
-	
 	void flushBuffer();
 	
+	// Window attributes
 	void setTitle(const char *);
-	void getSize(int *w, int *h);
+	
+	// Respondery things
 	void bringToFront();
 	void makeFirstResp();
 	
-	void goFullscreenOnCurScreen();
-	void goFullscreenOn(int screen);
+	// Size & position
+	void getSize(int *w, int *h);
+	void setSize(int w, int h);
+	
+	void getPos(int *x, int *y);
+	void setPos(int x, int y);
+	
+	int getScreen();
+	void setScreen(int screenInd);
+	
+	void goFullscreen();
 	void goWindowed();
+	bool isInFullscreenMode();
+	
+	// Mouse
+	bool mouseIsOver();
+	void getMousePosition(int *x, int *y);
+	void setMousePosition(int x, int y);
 	
 private:
 	struct NativeObjs;
