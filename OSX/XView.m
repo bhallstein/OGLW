@@ -35,7 +35,7 @@
 	return YES;
 }
 
--(void)convertMouseCoords:(NSPoint *)p {
+-(void)convertNSWindowToWCoords:(NSPoint *)p {
 	*p = [self convertPoint:*p toView:self];
 	p->y -= 1;
 	p->y = self.bounds.size.height - p->y;
@@ -62,7 +62,7 @@ void addKeyEventIfOn(W::EventType::T type, W::Event::KeyEvent info) {
 
 -(void)mouseDown:(NSEvent *)nsev {
 	NSPoint p = [nsev locationInWindow];
-	[self convertMouseCoords:&p];
+	[self convertNSWindowToWCoords:&p];
 	
 	addMouseEventIfOn(
 					  W::EventType::LMouseDown,
@@ -71,7 +71,7 @@ void addKeyEventIfOn(W::EventType::T type, W::Event::KeyEvent info) {
 }
 -(void)mouseUp:(NSEvent*)nsev {
 	NSPoint p = [nsev locationInWindow];
-	[self convertMouseCoords:&p];
+	[self convertNSWindowToWCoords:&p];
 
 	addMouseEventIfOn(
 					  W::EventType::LMouseUp,
@@ -80,7 +80,7 @@ void addKeyEventIfOn(W::EventType::T type, W::Event::KeyEvent info) {
 }
 -(void)rightMouseDown:(NSEvent *)nsev {
 	NSPoint p = [nsev locationInWindow];
-	[self convertMouseCoords:&p];
+	[self convertNSWindowToWCoords:&p];
 	addMouseEventIfOn(
 					  W::EventType::RMouseDown,
 					  (W::Event::MouseEvent) { (int)p.x, (int)p.y, (W::Window*)windowID }
@@ -88,7 +88,7 @@ void addKeyEventIfOn(W::EventType::T type, W::Event::KeyEvent info) {
 }
 -(void)rightMouseUp:(NSEvent *)nsev {
 	NSPoint p = [nsev locationInWindow];
-	[self convertMouseCoords:&p];
+	[self convertNSWindowToWCoords:&p];
 	addMouseEventIfOn(
 					  W::EventType::RMouseUp,
 					  (W::Event::MouseEvent) { (int)p.x, (int)p.y }

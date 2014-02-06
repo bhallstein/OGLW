@@ -29,7 +29,6 @@
 WInt_WindowAbstr* make_WInt_Window(
 								   int w, int h,
 								   const char *t,
-								   int posx, int posy,
 								   WInt_WindowAbstr *share,
 								   bool fullscreen,
 								   int screen,
@@ -39,7 +38,7 @@ WInt_WindowAbstr* make_WInt_Window(
 	WInt_WindowAbstr *win = 0;
 	
 	#ifdef WTARGET_MAC
-		win = new WInt_WindowOSX(w, h, t, posx, posy, (WInt_WindowOSX*)share, fullscreen, screen, windowID);
+		win = new WInt_WindowOSX(w, h, t, (WInt_WindowOSX*)share, fullscreen, screen, windowID);
 	#elif defined WTARGET_WIN
 		win = new WInt_WindowWin(w, h, t, posx, posy, (WInt_WindowWin*)share, fullscreen, screen, windowID);
 	#endif

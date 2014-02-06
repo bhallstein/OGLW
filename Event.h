@@ -26,14 +26,11 @@ namespace W {
 			KeyDown, KeyUp,
 			
 			// Positional
-			MouseMove, LMouseUp, LMouseDown, RMouseUp, RMouseDown,	// Mouse
-			TouchDown, TouchMoved, TouchUp, TouchCancelled,			// Touch
+			LMouseUp, LMouseDown, RMouseUp, RMouseDown,		// Mouse
+			TouchDown, TouchMoved, TouchUp, TouchCancelled,	// Touch
 			
 			// Scroll wheel
 			ScrollWheel,
-			
-			// ScreenEdge
-			ScreenEdgeTop, ScreenEdgeBottom, ScreenEdgeLeft, ScreenEdgeRight,
 			
 			// Windowing
 			WinClosed,

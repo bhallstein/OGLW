@@ -17,6 +17,6 @@
 @property BOOL clickThrough;
 
 -(instancetype)initWithFrame:(NSRect)f clickThrough:(BOOL)c windowID:(void*)winID;
--(void)convertMouseCoords:(NSPoint*)p;
+-(void)convertNSWindowToWCoords:(NSPoint*)p;
 
 @end

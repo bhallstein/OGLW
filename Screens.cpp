@@ -21,6 +21,27 @@
 		return (int) [[NSScreen screens] count];
 	}
 
+	void W::getScreenPosition(int screenInd, int *x, int *y) {
+		NSArray *screens = [NSScreen screens];
+		if (screenInd >= screens.count || screenInd < 0)
+			*x = *y = -1;
+		else {
+			NSScreen *scr = screens[screenInd];
+			*x = scr.frame.origin.x;
+			*y = -scr.frame.origin.y;
+		}
+	}
+
+	void W::getScreenSize(int screenInd, int *w, int *h) {
+		NSArray *screens = [NSScreen screens];
+		if (screenInd >= screens.count || screenInd < 0)
+			*w = *h = -1;
+		else {
+			NSScreen *scr = screens[screenInd];
+			*w = scr.frame.size.width;
+			*h = scr.frame.size.height;
+		}
+	}
 
 #elif defined WTARGET_WIN
 	
