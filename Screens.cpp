@@ -53,4 +53,28 @@
 		return count;
 	}
 
+	void W::getScreenPosition(int screenInd, int *x, int *y) {
+		int nMonitors;
+		GLFWmonitor **mons = glfwGetMonitors(&nMonitors);
+		if (screenInd >= nMonitors || screenInd < 0)
+			*x = *y = -1;
+		else {
+			int posX, posY;
+			glfwGetMonitorPos(mons[screenInd], x, y);
+		}
+	}
+
+	void W::getScreenSize(int screenInd, int *w, int *h) {
+		int nMonitors;
+		GLFWmonitor **mons = glfwGetMonitors(&nMonitors);
+		if (screenInd >= nMonitors || screenInd < 0)
+			*w = *h = -1;
+		else {
+			const GLFWvidmode *vidmode = glfwGetVideoMode(mons[screenInd]);
+			*w = vidmode->width;
+			*h = vidmode->height;
+		}
+
+	}
+
 #endif

@@ -40,7 +40,7 @@ WInt_WindowAbstr* make_WInt_Window(
 	#ifdef WTARGET_MAC
 		win = new WInt_WindowOSX(w, h, t, (WInt_WindowOSX*)share, fullscreen, screen, windowID);
 	#elif defined WTARGET_WIN
-		win = new WInt_WindowWin(w, h, t, posx, posy, (WInt_WindowWin*)share, fullscreen, screen, windowID);
+		win = new WInt_WindowWin(w, h, t, (WInt_WindowWin*)share, fullscreen, screen, windowID);
 	#endif
 	
 	return win;
