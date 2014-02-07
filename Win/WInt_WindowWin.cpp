@@ -10,18 +10,6 @@
  *
  */
 
-// Tasks remaining:
-// - application fore/background events
-
-// Both windows and os x:
-// - getting mouse position
-//     glfwGetCursorPos
-// - also, setting mouse position
-//     glfwSetCursorPos (nb window must be focused)
-// - capturing the mouse:
-//     glfwSetInputMode: GLFW_CURSOR, GLFW_CURSOR_NORMAL/HIDDEN/DISABLED (auto-sets invis and always centred)
-
-
 #include "WInt_WindowWin.h"
 #include "Event.h"
 
@@ -82,14 +70,13 @@ struct WInt_WindowWin::Init {
 };
 WInt_WindowWin::Init *WInt_WindowWin::init = new WInt_WindowWin::Init;
 
+
 // WInt_WindowWin
 
 WInt_WindowWin::WInt_WindowWin(
 	int width,
 	int height,
 	const char *title,
-	int posx,
-	int posy,
 	WInt_WindowWin *share,
 	bool fullscreen,
 	int screenInd,
@@ -126,21 +113,9 @@ WInt_WindowWin::WInt_WindowWin(
 			this
 		);
 	}
-	
-/*
-	glfwGetWindowMonitor
 
-	glfwDestroyWindow
-
-	wm_setfocus, wm_killfocus  - sent to window when gains/loses keybd focus
-	wm_activate                - sent to window when de-/activated 
-
-	getforegroundwindow fn - gets the hwnd w/ focus? compare to application windows
-
-	setwineventhook - event_system_foreground events 
-	setwindowshookex?
-*/
-
+	// - capturing the mouse:
+	//     glfwSetInputMode: GLFW_CURSOR, GLFW_CURSOR_NORMAL/HIDDEN/DISABLED (auto-sets invis and always centred)
 }
 
 WInt_WindowWin::~WInt_WindowWin()
@@ -149,27 +124,24 @@ WInt_WindowWin::~WInt_WindowWin()
 }
 
 
+// Context
 void WInt_WindowWin::makeCurrentContext() {
 	glfwMakeContextCurrent(objs->win);
 }
-
 void WInt_WindowWin::clearCurrentContext() {
 	glfwMakeContextCurrent(NULL);
 }
-
 void WInt_WindowWin::flushBuffer() {
 	glfwSwapBuffers(objs->win);
 }
 
+// Window attribs
 void WInt_WindowWin::setTitle(const char *t) {
 	objs->title = t;
 	glfwSetWindowTitle(objs->win, t);
 }
 
-void WInt_WindowWin::getSize(int *w, int *h) {
-	glfwGetWindowSize(objs->win, w, h);
-}
-
+// Respondery
 void WInt_WindowWin::bringToFront() {
 	HWND winHandle = glfwGetWin32Window(objs->win);
 	SetForegroundWindow(winHandle);
@@ -179,7 +151,96 @@ void WInt_WindowWin::makeFirstResp() {
 	SetFocus(winHandle);
 }
 
-void WInt_WindowWin::goFullscreenOnCurScreen() {
+// Size & position
+void WInt_WindowWin::getSize(int *w, int *h) {
+	glfwGetWindowSize(objs->win, w, h);
+}
+void WInt_WindowWin::setSize(int w, int h) {
+	glfwSetWindowSize(objs->win, w, h);
+}
+
+void WInt_WindowWin::getPos(int *x, int *y) {
+	int winX, winY, monX, monY, nMons;
+	int curScreen = getScreen();
+
+	glfwGetWindowPos(objs->win, &winX, &winY);	
+	GLFWmonitor **mons = glfwGetMonitors(&nMons);
+	glfwGetMonitorPos(mons[curScreen], &monX, &monY);
+
+	*x = winX - monX;
+	*y = winY - monY;
+}
+void WInt_WindowWin::setPos(int x, int y) {
+	int nMons, monX, monY;
+	int curScreen = getScreen();
+
+	GLFWmonitor **mons = glfwGetMonitors(&nMons);
+	glfwGetMonitorPos(mons[curScreen], &monX, &monY);
+
+	glfwSetWindowPos(objs->win, x + monX, y + monY);
+}
+
+int WInt_WindowWin::getScreen() {
+	int i;
+	// In fullscreen mode, we can use glfwGetWindowMonitor()
+	if (objs->currentlyFullscreen) {
+		int nMonitors;
+		GLFWmonitor **mons = glfwGetMonitors(&nMonitors);
+		GLFWmonitor *curMonitor = glfwGetWindowMonitor(objs->win);
+		for (i=0; i < nMonitors; ++i)
+			if (mons[i] == curMonitor)
+				break;
+	}
+	// In windowed mode, find monitor whose frame encompasses the window's position
+	else {
+		int winX, winY, nMonitors;
+		glfwGetWindowPos(objs->win, &winX, &winY);
+		GLFWmonitor **mons = glfwGetMonitors(&nMonitors);
+		for (i=0; i < nMonitors; ++i) {
+			int monX, monY;
+			glfwGetMonitorPos(mons[i], &monX, &monY);
+			const GLFWvidmode *vidMode = glfwGetVideoMode(mons[i]);
+			if (winX >= monX && winY >= monY && winX < monX + vidMode->width && winY < monY + vidMode->height)
+				break;
+		}
+	}
+	return i;
+}
+void WInt_WindowWin::setScreen(int newScreenInd) {
+	int nMons;
+	GLFWmonitor **mons = glfwGetMonitors(&nMons);
+	if (newScreenInd >= nMons || newScreenInd < 0)
+		newScreenInd = 0;
+
+	// In fullscreen mode, have to create new window & destroy existing
+	if (objs->currentlyFullscreen) {
+		// Create new window in fullscreen on new screen
+		GLFWwindow *newWindow = WInt_createWindow(
+			0, 0,
+			objs->title.c_str(),
+			objs->win,
+			true,
+			newScreenInd,
+			this
+		);
+		// Destroy previous
+		glfwDestroyWindow(objs->win);
+		objs->win = newWindow;
+	}
+	// In windowed mode, get current window position, correct to reflect desired monitor
+	else {
+		int curScreenInd = getScreen();
+		int x1, y1, x2, y2;
+		glfwGetMonitorPos(mons[curScreenInd], &x1, &y1);
+		glfwGetMonitorPos(mons[newScreenInd], &x2, &y2);
+		
+		int winX, winY;
+		glfwGetWindowPos(objs->win, &winX, &winY);
+		glfwSetWindowPos(objs->win, winX - x1 + x2, winY - y1 + y2);
+	}
+}
+
+void WInt_WindowWin::goFullscreen() {
 	if (objs->currentlyFullscreen) return;
 	
 	// Save previous window properties
@@ -201,34 +262,6 @@ void WInt_WindowWin::goFullscreenOnCurScreen() {
 	objs->win = newWindow;
 	objs->currentlyFullscreen = true;
 }
-
-void WInt_WindowWin::goFullscreenOn(int newScreenInd) {
-	// If already fullscreen on spec. screen, return
-	if (objs->currentlyFullscreen && objs->currentScreenIndex == newScreenInd)
-		return;
-	
-	// If currently windowed, save previous window properties
-	if (!objs->currentlyFullscreen)
-		glfwGetWindowSize(objs->win, &objs->prevW, &objs->prevH);
-
-	// Create new fullscreen window
-	GLFWwindow *newWindow = WInt_createWindow(
-		0, 0,
-		objs->title.c_str(),
-		objs->win,
-		true,
-		newScreenInd,
-		this
-	);
-
-	// Destroy previous
-	glfwDestroyWindow(objs->win);
-
-	objs->win = newWindow;
-	objs->currentlyFullscreen = true;
-	objs->currentScreenIndex = newScreenInd;
-
-}
 void WInt_WindowWin::goWindowed() {
 	if (!objs->currentlyFullscreen) return;
 
@@ -239,7 +272,7 @@ void WInt_WindowWin::goWindowed() {
 		objs->title.c_str(),
 		objs->win,
 		false,
-		objs->currentScreenIndex,
+		getScreen(),
 		this
 	);
 
@@ -249,15 +282,43 @@ void WInt_WindowWin::goWindowed() {
 	objs->win = newWindow;
 	objs->currentlyFullscreen = false;
 }
+bool WInt_WindowWin::isInFullscreenMode() {
+	return objs->currentlyFullscreen;
+}
 
+// Mouse
+bool WInt_WindowWin::mouseIsOver() {
+	// Get size of window & its position on the virtual screen
+	int winNativeX, winNativeY, winW, winH;
+	glfwGetWindowPos(objs->win, &winNativeX, &winNativeY);
+	getSize(&winW, &winH);
+
+	// Get the position of the mouse on the virtual screen
+	POINT nativeMPos;
+	GetCursorPos(&nativeMPos);
+
+	return (
+		nativeMPos.x >= winNativeX && nativeMPos.y >= winNativeY &&
+		nativeMPos.x < winNativeX + winW && nativeMPos.y < winNativeY + winH
+	);
+}
+void WInt_WindowWin::getMousePosition(int *x, int *y) {
+	double mouseX, mouseY;
+	glfwGetCursorPos(objs->win, &mouseX, &mouseY);
+	*x = (int) mouseX;
+	*y = (int) mouseY;
+}
+void WInt_WindowWin::setMousePosition(int x, int y) {
+	glfwSetCursorPos(objs->win, (double)x, (double)y);
+}
+
+// Events
 void WInt_WindowWin::getEvents() {
 	glfwPollEvents();
 }
 
 
 // Window creation helper impl.
-
-GLFWwindow* WInt_createWindow(int w, int h, const char *t, GLFWwindow* share, bool fullscreen, int screenInd);
 
 GLFWwindow* WInt_createWindow(
 	int w,
@@ -278,7 +339,7 @@ GLFWwindow* WInt_createWindow(
 	else {
 		int n;
 		GLFWmonitor **monitors = glfwGetMonitors(&n);
-		if (screenInd >= n)
+		if (screenInd >= n || screenInd < 0)
 			screenInd = 0;
 		mon = monitors[screenInd];
 	}
@@ -296,7 +357,7 @@ GLFWwindow* WInt_createWindow(
 		win = glfwCreateWindow(monVidMode->width, monVidMode->height, t, mon, share);
 	}
 	else {
-		// Create windowed on spec. monitor
+		// Create window, centered on spec. monitor
 		int monX, monY;
 		const GLFWvidmode *vidmode;
 		glfwGetMonitorPos(mon, &monX, &monY);
@@ -341,6 +402,32 @@ void cb_WindowFocus(GLFWwindow *w, int focused) {
 		focused ? W::EventType::WinBecameKey : W::EventType::WinStoppedBeingKey,
 		winID
 	);
+
+	// Generate application fore/background events
+	if (W::Event::on) {
+		HWND foregroundWinHandle = GetForegroundWindow();
+		// If the foreground window handle is null, consider us to be losing foreground
+		if (foregroundWinHandle == NULL) {
+			W::Event ev(W::EventType::AppBecameBackground);
+			W::Event::newEvents.push_back(ev);
+		}
+		else {
+			// If the pid of the foreground window matches ours, we are entering the foreground;
+			// otherwise, the background
+			DWORD pidForegroundWindow;
+			GetWindowThreadProcessId(foregroundWinHandle, &pidForegroundWindow);
+			if (pidForegroundWindow == GetCurrentProcessId()) {
+				if (focused) {
+					W::Event ev(W::EventType::AppBecameForeground);
+					W::Event::newEvents.push_back(ev);
+				}
+			}
+			else if (!focused) {
+				W::Event ev(W::EventType::AppBecameBackground);
+				W::Event::newEvents.push_back(ev);
+			}
+		}
+	}
 }
 void cb_WindowMinimise(GLFWwindow *w, int minimised) {
 	WInt_WindowWin *win = (WInt_WindowWin*) glfwGetWindowUserPointer(w);
@@ -421,7 +508,7 @@ void cb_KeyCallback(GLFWwindow *w, int key, int scancode, int action, int modifi
 }
 //void cb_CharCallback(GLFWwindow*, int unicode_code_point);
 
-//	So, it seems w/ glfw the peekmessage-based glfwpollevents() system is used to retrieve messages from the windows queue.
+//	It seems the peekmessage-based glfwpollevents() system is used by glfw to retrieve messages from the windows queue.
 //	These are then processed by glfw, triggering the appropriate callbacks.
 //	Therefore on windows the user needs to synchronously trigger the retrieval of events in their update loop.
 //	i.e. Win:

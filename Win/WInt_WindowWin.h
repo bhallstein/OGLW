@@ -20,8 +20,6 @@ public:
 		int width,
 		int height,
 		const char *title,
-		int posx,
-		int posy,
 		WInt_WindowWin *share,
 		bool fullscreen,
 		int screen,
@@ -29,20 +27,38 @@ public:
 	);
 	~WInt_WindowWin();
 	
+	// OGL context
 	void makeCurrentContext();
 	void clearCurrentContext();
-	
 	void flushBuffer();
-	
+
+	// Win attribs
 	void setTitle(const char *);
-	void getSize(int *w, int *h);
+
+	// Respondery
 	void bringToFront();
 	void makeFirstResp();
+
+	// Size & pos
+	void getSize(int *w, int *h);
+	void setSize(int w, int h);
+
+	void getPos(int *x, int *y);
+	void setPos(int x, int y);
+
+	int getScreen();
+	void setScreen(int screen);
 	
-	void goFullscreenOnCurScreen();
-	void goFullscreenOn(int screen);
+	void goFullscreen();
 	void goWindowed();
+	bool isInFullscreenMode();
 	
+	// Mouse
+	bool mouseIsOver();
+	void getMousePosition(int *x, int *y);
+	void setMousePosition(int x, int y);
+
+	// Events
 	void getEvents();
 
 private:
