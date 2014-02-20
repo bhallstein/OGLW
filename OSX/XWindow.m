@@ -66,11 +66,11 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 
 @implementation XWindow
 
-@synthesize nswin;
-@synthesize view;
-@synthesize context;
-@synthesize xWinDelegate;
-@synthesize cachedTitle;
+@synthesize nswin = _nswin;
+@synthesize view = _view;
+@synthesize context = _context;
+@synthesize xWinDelegate = _xWinDelegate;
+@synthesize cachedTitle = _cachedTitle;
 
 -(instancetype)initWithWidth:(int)w height:(int)h sharedCtx:(XWindow *)_sharedCtx title:(NSString *)_title fullscreen:(BOOL)_fullscr screen:(int)_scrInd windowID:(void *)_winID {
 	if (self = [super init]) {
@@ -91,8 +91,8 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 		
 		// Save param properties
 		windowID = _winID;
-		cachedTitle = _title;
 		currentlyFullscreen = _fullscr;
+		self.cachedTitle = _title;
 		
 		// Create NSWindow
 		if (currentlyFullscreen) {
@@ -104,7 +104,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 			windowPositionConsideredSpecified = NO;
 			
 			// Init with a content rect of the supplied screen
-			nswin = [[NSWindow alloc] initWithContentRect:nsscreen.frame
+			self.nswin = [[NSWindow alloc] initWithContentRect:nsscreen.frame
 												styleMask:styleMask
 												  backing:NSBackingStoreBuffered
 													defer:NO];
@@ -120,11 +120,11 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 			frameRect = centredRectForFrameRectOnScreen(frameRect, nsscreen);
 			contentRect = [NSWindow contentRectForFrameRect:frameRect
 												  styleMask:styleMask];
-			nswin = [[NSWindow alloc] initWithContentRect:NSMakeRect(100, 100, 400, 200)
+			self.nswin = [[NSWindow alloc] initWithContentRect:NSMakeRect(100, 100, 400, 200)
 												styleMask:styleMask
 												  backing:NSBackingStoreBuffered
 													defer:NO];
-			[nswin setFrame:frameRect display:YES];
+			[self.nswin setFrame:frameRect display:YES];
 		}
 		
 		// Set up OGL context, view, window delegate, etc.
@@ -143,7 +143,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 			}
 			
 			// Create OGL context (shared if applicable)
-			context = [[NSOpenGLContext alloc] initWithFormat:pf shareContext:_sharedCtx.context];
+			self.context = [[NSOpenGLContext alloc] initWithFormat:pf shareContext:_sharedCtx.context];
 			if (!self.context) {
 				NSLog(@"Window: Error creating NSOpenGLContext");
 				return nil;
@@ -151,17 +151,17 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 			
 			// Create view, add to NSWindow, set as context’s destination
 			self.view = [[XView alloc] initWithFrame:frame clickThrough:NO windowID:windowID];
-			[nswin setContentView:self.view];
+			[self.nswin setContentView:self.view];
 			[self.context setView:self.view];
 			
 			// Set title
-			[nswin setTitle:_title];
+			[self.nswin setTitle:_title];
 			
 			// Create & set window delegate
 			//  - responds to windowShouldClose, miniaturization, becoming key notifications
 			//    & sends W events based on those
-			xWinDelegate = [[XWindowDelegate alloc] initWithWindowID:windowID];
-			[nswin setDelegate:xWinDelegate];
+			self.xWinDelegate = [[XWindowDelegate alloc] initWithWindowID:windowID];
+			[self.nswin setDelegate:self.xWinDelegate];
 			
 			// Subscribe to view frame changes
 			[[NSNotificationCenter defaultCenter] addObserver:self
@@ -169,7 +169,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 														 name:NSViewGlobalFrameDidChangeNotification
 													   object:self.view];
 			// Make active
-			[nswin makeKeyAndOrderFront:self];
+			[self.nswin makeKeyAndOrderFront:self];
 		}
 	}
 	
@@ -180,29 +180,29 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 
 // Context things
 -(void)makeCurrentContext {
-	[context makeCurrentContext];
+	[self.context makeCurrentContext];
 }
 -(void)clearCurrentContext {
 	[NSOpenGLContext clearCurrentContext];
 }
 -(void)flushBuffer {
-	[context flushBuffer];
+	[self.context flushBuffer];
 }
 
 // Windowy things
 -(void)bringToFront {
-	[nswin makeKeyAndOrderFront:NSApp];
+	[self.nswin makeKeyAndOrderFront:NSApp];
 }
 -(void)makeFirstResponder {
-	[nswin makeFirstResponder:self.view];
+	[self.nswin makeFirstResponder:self.view];
 }
 -(void)setTitle:(const char *)t {
-	[nswin setTitle:[NSString stringWithUTF8String:t]];
+	[self.nswin setTitle:[NSString stringWithUTF8String:t]];
 }
 
 // Size & position
 -(void)getSizeW:(int *)w H:(int *)h {
-	NSRect rct = [nswin contentRectForFrameRect:nswin.frame];
+	NSRect rct = [self.nswin contentRectForFrameRect:self.nswin.frame];
 	*w = rct.size.width;
 	*h = rct.size.height;
 }
@@ -211,29 +211,29 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 
 	// Get current W-style position
 	int wX, wY;
-	getWOriginForNativeWindowFrameRectOnScreen(&wX, &wY, nswin.frame, nswin.screen);
+	getWOriginForNativeWindowFrameRectOnScreen(&wX, &wY, self.nswin.frame, self.nswin.screen);
 	
 	// Make new frame, preserving W-style position
 	NSRect newContentRect = NSMakeRect(0, 0, w, h);
-	NSRect newFrameRect = [nswin frameRectForContentRect:newContentRect];
+	NSRect newFrameRect = [self.nswin frameRectForContentRect:newContentRect];
 	int nX, nY;
-	getNativeWindowOriginForWOriginOnScreen(&nX, &nY, wX, wY, newFrameRect.size.height, nswin.screen);
+	getNativeWindowOriginForWOriginOnScreen(&nX, &nY, wX, wY, newFrameRect.size.height, self.nswin.screen);
 	newFrameRect.origin.x = nX;
 	newFrameRect.origin.y = nY;
 	
-	[nswin setFrame:newFrameRect display:YES];
+	[self.nswin setFrame:newFrameRect display:YES];
 #pragma message("Limit the size of the window to the size of the screen?")
 #pragma message("Could also automatically readjust position?")
 }
 
 -(void)getPosX:(int*)x Y:(int*)y {
-	getWOriginForNativeWindowFrameRectOnScreen(x, y, nswin.frame, nswin.screen);
+	getWOriginForNativeWindowFrameRectOnScreen(x, y, self.nswin.frame, self.nswin.screen);
 }
 -(void)setPosX:(int)x Y:(int)y {
 	int nativeX, nativeY;
-	getNativeWindowOriginForWOriginOnScreen(&nativeX, &nativeY, x, y, nswin.frame.size.height, nswin.screen);
-	NSRect newFrameRect = NSMakeRect(nativeX, nativeY, nswin.frame.size.width, nswin.frame.size.height);
-	[nswin setFrame:newFrameRect display:YES];
+	getNativeWindowOriginForWOriginOnScreen(&nativeX, &nativeY, x, y, self.nswin.frame.size.height, self.nswin.screen);
+	NSRect newFrameRect = NSMakeRect(nativeX, nativeY, self.nswin.frame.size.width, self.nswin.frame.size.height);
+	[self.nswin setFrame:newFrameRect display:YES];
 #pragma message("Could auto-position to fit entirely on the screen?")
 }
 
@@ -241,7 +241,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	NSArray *screens = [NSScreen screens];
 	int i = 0;
 	for (i=0; i < screens.count; ++i)
-		if (screens[i] == [nswin screen])
+		if (screens[i] == [self.nswin screen])
 			break;
 	return i;
 }
@@ -261,22 +261,22 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	else {
 		// In windowed mode, get native position of window on the new screen, preserving position from top left
 		int wx, wy;
-		getWOriginForNativeWindowFrameRectOnScreen(&wx, &wy, nswin.frame, nswin.screen);
+		getWOriginForNativeWindowFrameRectOnScreen(&wx, &wy, self.nswin.frame, self.nswin.screen);
 		int nx, ny;
-		getNativeWindowOriginForWOriginOnScreen(&nx, &ny, wx, wy, nswin.frame.size.height, screens[screenIndex]);
-		newFrame = NSMakeRect(nx, ny, nswin.frame.size.width, nswin.frame.size.height);
+		getNativeWindowOriginForWOriginOnScreen(&nx, &ny, wx, wy, self.nswin.frame.size.height, screens[screenIndex]);
+		newFrame = NSMakeRect(nx, ny, self.nswin.frame.size.width, self.nswin.frame.size.height);
 	}
 	
-	[nswin setFrame:newFrame display:YES];
+	[self.nswin setFrame:newFrame display:YES];
 }
 
 -(void)goFullscreen {
 	if (currentlyFullscreen) return;
 	
-	savedFrame = nswin.frame;
-	NSScreen *nsscreen = nswin.screen;
+	savedFrame = self.nswin.frame;
+	NSScreen *nsscreen = self.nswin.screen;
 	[self setToFullscreenStyle];
-	[nswin setFrame:nsscreen.frame display:YES];
+	[self.nswin setFrame:nsscreen.frame display:YES];
 
 	currentlyFullscreen = YES;
 }
@@ -290,8 +290,8 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	if (windowPositionConsideredSpecified)
 		newFrame = savedFrame;
 	else
-		newFrame = centredRectForFrameRectOnScreen(savedFrame, nswin.screen);
-	[nswin setFrame:newFrame display:YES];
+		newFrame = centredRectForFrameRectOnScreen(savedFrame, self.nswin.screen);
+	[self.nswin setFrame:newFrame display:YES];
 	
 	currentlyFullscreen = NO;
 }
@@ -302,23 +302,23 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 -(BOOL)mouseIsOver {
 	int mX, mY;
 	[self getMousePositionX:&mX Y:&mY];
-	NSRect contentRect = [nswin contentRectForFrameRect:nswin.frame];
+	NSRect contentRect = [self.nswin contentRectForFrameRect:self.nswin.frame];
 	return (
 			mX >= 0 && mY >= 0 &&
 			mX < contentRect.size.width && mY < contentRect.size.height
 			);
 }
 -(void)getMousePositionX:(int *)x Y:(int *)y {
-	NSPoint p = nswin.mouseLocationOutsideOfEventStream;
+	NSPoint p = self.nswin.mouseLocationOutsideOfEventStream;
 	[self.view convertNSWindowToWCoords:&p];
 	*x = p.x, *y = p.y;
 }
 -(void)setMousePositionX:(int)x Y:(int)y {
 	// Convert from W to NSView coords (origin at btm left)
-	int yN = view.bounds.size.height - y;
+	int yN = self.view.bounds.size.height - y;
 	
 	// Get window origin in screen coordinates
-	NSRect winOrigin = [nswin convertRectToScreen:NSMakeRect(0, 0, 0, 0)];
+	NSRect winOrigin = [self.nswin convertRectToScreen:NSMakeRect(0, 0, 0, 0)];
 	int xN = x + winOrigin.origin.x;
 	yN = [NSScreen mainScreen].frame.size.height - winOrigin.origin.y - yN;
 //	winOrigin.origin.y = nswin.screen.frame.size.height - rctConv.origin.y - y;
@@ -333,8 +333,8 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	[self.context update];
 	
 	// Resize the backing buffer
-	GLint _size[] = { (GLint)view.bounds.size.width, (GLint)view.bounds.size.height };
-	CGLContextObj ctx = (CGLContextObj) [context CGLContextObj];
+	GLint _size[] = { (GLint)self.view.bounds.size.width, (GLint)self.view.bounds.size.height };
+	CGLContextObj ctx = (CGLContextObj) [self.context CGLContextObj];
 	CGLSetParameter(ctx, kCGLCPSurfaceBackingSize, _size);
 	CGLEnable(ctx, kCGLCESurfaceBackingSize);
 	
@@ -347,16 +347,16 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 }
 
 -(void)setToFullscreenStyle {
-	[nswin setStyleMask:STYLEMASK_BORDERLESS];
-	[nswin setLevel:(NSMainMenuWindowLevel + 1)];
-	[nswin setOpaque:YES];
-	[nswin setHidesOnDeactivate:YES];
+	[self.nswin setStyleMask:STYLEMASK_BORDERLESS];
+	[self.nswin setLevel:(NSMainMenuWindowLevel + 1)];
+	[self.nswin setOpaque:YES];
+	[self.nswin setHidesOnDeactivate:YES];
 }
 -(void)setToWindowedStyle {
-	[nswin setStyleMask:STYLEMASK_NORMAL];
-	[nswin setOpaque:NO];
-	[nswin setTitle:cachedTitle];
-	[nswin setHidesOnDeactivate:NO];
+	[self.nswin setStyleMask:STYLEMASK_NORMAL];
+	[self.nswin setOpaque:NO];
+	[self.nswin setTitle:self.cachedTitle];
+	[self.nswin setHidesOnDeactivate:NO];
 }
 
 @end
