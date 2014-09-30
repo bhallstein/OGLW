@@ -37,8 +37,8 @@
 
 -(void)convertNSWindowToWCoords:(NSPoint *)p {
 	*p = [self convertPoint:*p toView:self];
-	p->y -= 1;
 	p->y = self.bounds.size.height - p->y;
+	p->y -= 1;
 		// y-axis is 1-based and inverted
 }
 
@@ -110,7 +110,7 @@ void addKeyEventIfOn(W::EventType::T type, W::Event::KeyEvent info) {
 	if (!W::Event::on) return;
 	
 	W::Event ev(W::EventType::ScrollWheel);
-	ev.scrollEvent = { (int)nsev.deltaX, (int)nsev.deltaY, (W::Window*)windowID };
+	ev.scrollEvent = { (float)nsev.deltaX, (float)nsev.deltaY, (W::Window*)windowID };
 	W::Event::newEvents.push_back(ev);
 }
 

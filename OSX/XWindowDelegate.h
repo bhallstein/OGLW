@@ -10,7 +10,7 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 
 @interface XWindowDelegate : NSObject <NSWindowDelegate>
 
