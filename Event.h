@@ -81,7 +81,7 @@ namespace W {
 		// Information for different event types is saved in a struct type.
 		// To limit object size, the structs are stored in a union - use whichever
 		// member of the union is appropriate.
-		// (This system is based on SFML's event class.)
+		// (This is based on SFML's event class.)
 		
 		Event(EventType::T);
 		
@@ -93,7 +93,7 @@ namespace W {
 			KeyCode::T keyCode;
 		};
 		struct ScrollEvent {
-			int dx, dy;
+			float dx, dy;
 			Window *window;
 		};
 		struct WindowEvent {

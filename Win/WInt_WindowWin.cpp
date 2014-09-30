@@ -485,8 +485,8 @@ void cb_ScrollWheel(GLFWwindow *w, double x, double y) {
 
 	W::Event ev(W::EventType::ScrollWheel);
 	ev.scrollEvent.window = (W::Window*) winID;
-	ev.scrollEvent.dx = (int) x;
-	ev.scrollEvent.dy = (int) y;
+	ev.scrollEvent.dx = (float) x;
+	ev.scrollEvent.dy = (float) y;
 
 	W::Event::newEvents.push_back(ev);
 }

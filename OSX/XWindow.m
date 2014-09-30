@@ -134,6 +134,10 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 			NSOpenGLPixelFormatAttribute attrs[] = {
 				NSOpenGLPFADoubleBuffer,
 				NSOpenGLPFADepthSize, 24,
+//				NSOpenGLPFAMultisample,
+//				NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
+//				NSOpenGLPFASamples, (NSOpenGLPixelFormatAttribute)4,
+// to enable multisampling
 				NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
 				0
 			};
@@ -153,6 +157,10 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 			self.view = [[XView alloc] initWithFrame:frame clickThrough:NO windowID:windowID];
 			[self.nswin setContentView:self.view];
 			[self.context setView:self.view];
+			
+//			GLint swapInt = 1;
+//			[self.openGLContext setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
+// to enable vsync
 			
 			// Set title
 			[self.nswin setTitle:_title];
@@ -176,7 +184,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	return self;
 }
 
-#pragma mark Public methods
+#pragma mark - Public methods
 
 // Context things
 -(void)makeCurrentContext {
@@ -327,7 +335,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 }
 
 
-#pragma mark Private methods
+#pragma mark - Private methods
 
 -(void)frameChanged:(id)ntfn {
 	[self.context update];
