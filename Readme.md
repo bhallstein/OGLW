@@ -3,9 +3,9 @@
 
 *Under consideration:*
 
-- adding a timer
-- screen config changed event
-- hiding the mouse
+- Screen config changed event
+- Screen layout object
+- Mouse hiding
 
 
 *Known issues:*
