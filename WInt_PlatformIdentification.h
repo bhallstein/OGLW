@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef OGLMultiWindowTest_WInt_PlatformIdentification_h
-#define OGLMultiWindowTest_WInt_PlatformIdentification_h
+#ifndef WInt_PlatformIdentification_h
+#define WInt_PlatformIdentification_h
 
 #ifdef __APPLE__
 

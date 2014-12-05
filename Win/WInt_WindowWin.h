@@ -10,6 +10,9 @@
  *
  */
 
+#ifndef WInt_WindowWin_h
+#define WInt_WindowWin_h
+
 #include "WInt_WindowAbstr.h"
 
 struct GLFWwindow;
@@ -77,3 +80,5 @@ private:
 	friend void cb_ScrollWheel(GLFWwindow*, double, double);
 
 };
+
+#endif

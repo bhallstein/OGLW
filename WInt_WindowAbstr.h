@@ -15,8 +15,8 @@
 // Has concrete subclasses implementing windows and mac: get with factory
 // method: make_WInt_Window()
 
-#ifndef __OGLMultiWindowTest__WInt_WindowAbstr__
-#define __OGLMultiWindowTest__WInt_WindowAbstr__
+#ifndef WInt_WindowAbstr_h
+#define WInt_WindowAbstr_h
 
 class WInt_WindowAbstr {
 public:

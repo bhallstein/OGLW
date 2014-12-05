@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef OGLMultiWindowTest_Event_h
-#define OGLMultiWindowTest_Event_h
+#ifndef W_Event_h
+#define W_Event_h
 
 #include <vector>
 
