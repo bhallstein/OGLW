@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __OGLMultiWindowTest__Screens__
-#define __OGLMultiWindowTest__Screens__
+#ifndef W_Screens_h
+#define W_Screens_h
 
 namespace W {
 	int numberOfScreens();

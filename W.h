@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef OGLMultiWindowTest_W_h
-#define OGLMultiWindowTest_W_h
+#ifndef __W_h
+#define __W_h
 
 #include "Window.h"
 #include "Event.h"

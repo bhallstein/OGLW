@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __OGLMultiWindowTest__Window__
-#define __OGLMultiWindowTest__Window__
+#ifndef W_Window_h
+#define W_Window_h
 
 class WInt_WindowAbstr;
 

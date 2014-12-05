@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __OGLMultiWindowTest__WInt_WindowOSX__
-#define __OGLMultiWindowTest__WInt_WindowOSX__
+#ifndef WInt_WindowOSX_h
+#define WInt_WindowOSX_h
 
 #include "WInt_WindowAbstr.h"
 
