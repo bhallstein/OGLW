@@ -91,28 +91,15 @@ WInt_WindowWin::WInt_WindowWin(
 	objs->currentScreenIndex = screenInd;
 	objs->winID = windowID;
 
-	if (fullscreen) {
-		objs->win = WInt_createWindow(
-			width,		// ignored when creating fullscreen window 
-			height,		// 
-			title,
-			share ? share->objs->win : NULL,
-			true,
-			screenInd,
-			this
-		);
-	}
-	else {
-		objs->win = WInt_createWindow(
-			width,
-			height,
-			title,
-			share ? share->objs->win : NULL,
-			false,
-			screenInd,
-			this
-		);
-	}
+	objs->win = WInt_createWindow(
+		width,		// ignored when creating fullscreen window 
+		height,		// 
+		title,
+		share ? share->objs->win : NULL,
+		fullscreen,
+		screenInd,
+		this
+	);
 
 	// - capturing the mouse:
 	//     glfwSetInputMode: GLFW_CURSOR, GLFW_CURSOR_NORMAL/HIDDEN/DISABLED (auto-sets invis and always centred)
