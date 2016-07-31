@@ -50,14 +50,14 @@ void addMouseEventIfOn(W::EventType::T type, W::Event::MouseEvent info) {
 	
 	W::Event ev(type);
 	ev.mouseEvent = info;
-	W::Event::newEvents.push_back(ev);
+	W::Event::addNewEvent(ev);
 }
 void addKeyEventIfOn(W::EventType::T type, W::Event::KeyEvent info) {
 	if (!W::Event::on) return;
 	
 	W::Event ev(type);
 	ev.keyEvent = info;
-	W::Event::newEvents.push_back(ev);
+	W::Event::addNewEvent(ev);
 }
 
 -(void)mouseDown:(NSEvent *)nsev {
@@ -111,7 +111,7 @@ void addKeyEventIfOn(W::EventType::T type, W::Event::KeyEvent info) {
 	
 	W::Event ev(W::EventType::ScrollWheel);
 	ev.scrollEvent = { (float)nsev.deltaX, (float)nsev.deltaY, (W::Window*)windowID };
-	W::Event::newEvents.push_back(ev);
+	W::Event::addNewEvent(ev);
 }
 //-(void)magnifyWithEvent:(NSEvent *)nsev {
 //	if (!W::Event::on) return;

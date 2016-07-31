@@ -51,3 +51,15 @@ W::KeyCode::T W::Event::charToKeycode(unsigned int c) {
 bool W::Event::is_positional() const {
 	return (type >= EventType::LMouseUp && type <= EventType::TouchCancelled);
 }
+
+void W::Event::addNewEvent(const W::Event &ev) {
+	newEvents.push_back(ev);
+}
+std::vector<W::Event> W::Event::getNewEvents() {
+	auto _newEvents = newEvents;
+	newEvents.clear();
+	
+	// Generate mousemove event
+	
+	return _newEvents;
+}

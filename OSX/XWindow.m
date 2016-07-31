@@ -368,7 +368,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	if (W::Event::on) {
 		W::Event ev(W::EventType::WinResized);
 		ev.winEvent.window = (W::Window*)windowID;
-		W::Event::newEvents.push_back(ev);
+		W::Event::addNewEvent(ev);
 	}
 }
 

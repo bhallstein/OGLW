@@ -31,7 +31,7 @@
 	if (W::Event::on) {
 		W::Event ev(W::EventType::WinClosed);
 		ev.winEvent.window = (W::Window*)windowID;
-		W::Event::newEvents.push_back(ev);
+		W::Event::addNewEvent(ev);
 	}
 	return NO;
 }
@@ -41,14 +41,14 @@
 	
 	W::Event ev(W::EventType::WinMinimized);
 	ev.winEvent.window = (W::Window*)windowID;
-	W::Event::newEvents.push_back(ev);
+	W::Event::addNewEvent(ev);
 }
 -(void)windowDidDeminiaturize:(NSNotification *)n {
 	if (!W::Event::on) return;
 	
 	W::Event ev(W::EventType::WinDeminimized);
 	ev.winEvent.window = (W::Window*)windowID;
-	W::Event::newEvents.push_back(ev);
+	W::Event::addNewEvent(ev);
 }
 
 -(void)windowDidBecomeKey:(NSNotification *)n {
@@ -56,14 +56,14 @@
 	
 	W::Event ev(W::EventType::WinBecameKey);
 	ev.winEvent.window = (W::Window*)windowID;
-	W::Event::newEvents.push_back(ev);
+	W::Event::addNewEvent(ev);
 }
 -(void)windowDidResignKey:(NSNotification *)n {
 	if (!W::Event::on) return;
 	
 	W::Event ev(W::EventType::WinStoppedBeingKey);
 	ev.winEvent.window = (W::Window*)windowID;
-	W::Event::newEvents.push_back(ev);
+	W::Event::addNewEvent(ev);
 }
 
 @end
