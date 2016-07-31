@@ -33,10 +33,17 @@ W::Window::Window(
 								   screen,
 								   multisampling,
 								   (void*)this);
+	winabstr_registry.push_back(windowAbstr);
 }
 
 W::Window::~Window()
 {
+	for (auto it = winabstr_registry.begin(); it != winabstr_registry.end(); ) {
+		if (*it == windowAbstr)
+			it = winabstr_registry.erase(it);
+		else
+			++it;
+	}
 	delete windowAbstr;
 }
 

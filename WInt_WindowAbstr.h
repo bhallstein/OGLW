@@ -19,6 +19,7 @@
 #define WInt_WindowAbstr_h
 
 #include "Multisampling.h"
+#include <vector>
 
 class WInt_WindowAbstr {
 public:
@@ -59,17 +60,17 @@ public:
 	virtual void getEvents() { }	// Def. impl does nothing; overridden on windows
 };
 
-WInt_WindowAbstr* make_WInt_Window(
-								   int w,
+WInt_WindowAbstr* make_WInt_Window(int w,
 								   int h,
 								   const char *t,
 								   WInt_WindowAbstr *share,
 								   bool fullscreen,
 								   int screen,
 								   W::Multisampling::T,
-								   void *windowID	// Pointer to the W::Window, for OS X event passing, & ...?
-								  );
-// If position is -ve, window will be centred
+								   void *windowID);	// Pointer to the W::Window, for OS X event passing, & ...?
+// If position is -ve, window will be centered
 // 'screen' currently ignored
+
+extern std::vector<WInt_WindowAbstr*> winabstr_registry;
 
 #endif
