@@ -11,8 +11,6 @@
  */
 
 #include "WInt_WindowAbstr.h"
-
-
 #include "WInt_PlatformIdentification.h"
 
 
@@ -23,17 +21,13 @@
 #endif
 
 
-// make_WInt_Window()
-
-WInt_WindowAbstr* make_WInt_Window(
-								   int w, int h,
+WInt_WindowAbstr* make_WInt_Window(int w, int h,
 								   const char *t,
 								   WInt_WindowAbstr *share,
 								   bool fullscreen,
 								   int screen,
 								   W::Multisampling::T multisampling,
-								   void *windowID
-								   )
+								   void *windowID)
 {
 	WInt_WindowAbstr *win = 0;
 	
@@ -46,3 +40,5 @@ WInt_WindowAbstr* make_WInt_Window(
 	return win;
 }
 
+
+std::vector<WInt_WindowAbstr*> winabstr_registry;
