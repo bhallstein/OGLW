@@ -103,6 +103,9 @@ namespace W {
 			int x, y;
 			int touchID;
 		};
+		struct UIEvent {
+			std::string *element;
+		};
 		
 		EventType::T type;
 		
@@ -112,7 +115,10 @@ namespace W {
 			ScrollEvent scrollEvent;
 			TouchEvent  touchEvent;
 			WindowEvent winEvent;
+			UIEvent     uiEvent;
 		};
+		
+		bool is_positional() const;
 		
 		// Turn event harvesting on/off by setting this property.
 		static bool on;
@@ -126,7 +132,7 @@ namespace W {
 		// .cpp: W::EventType::T MyEventType = Event::registerType();
 		static EventType::T registerType();
 		
-		static KeyCode::T   charToKeycode(unsigned int c);
+		static KeyCode::T charToKeycode(unsigned int c);
 		
 	private:
 		static unsigned int typecounter;

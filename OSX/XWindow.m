@@ -15,6 +15,7 @@
 #import "XWindowDelegate.h"
 
 #include "Event.h"
+#include <vector>
 
 #define STYLEMASK_NORMAL     NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask
 #define STYLEMASK_BORDERLESS NSBorderlessWindowMask
@@ -72,7 +73,13 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 @synthesize xWinDelegate = _xWinDelegate;
 @synthesize cachedTitle = _cachedTitle;
 
--(instancetype)initWithWidth:(int)w height:(int)h sharedCtx:(XWindow *)_sharedCtx title:(NSString *)_title fullscreen:(BOOL)_fullscr screen:(int)_scrInd windowID:(void *)_winID {
+-(instancetype)initWithWidth:(int)w height:(int)h
+				   sharedCtx:(XWindow*)_sharedCtx
+					   title:(NSString*)_title
+				  fullscreen:(BOOL)_fullscr
+					  screen:(int)_scrInd
+					windowID:(void*)_winID
+		  multisamplingLevel:(int)msLevel {
 	if (self = [super init]) {
 		// Get screen, ensuring screen index is in bounds
 		NSArray *screens = [NSScreen screens];
@@ -131,17 +138,28 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 		{
 			// Create PF
 			NSOpenGLPixelFormat *pf;
-			NSOpenGLPixelFormatAttribute attrs[] = {
-				NSOpenGLPFADoubleBuffer,
-				NSOpenGLPFADepthSize, 24,
-//				NSOpenGLPFAMultisample,
-//				NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
-//				NSOpenGLPFASamples, (NSOpenGLPixelFormatAttribute)4,
-// to enable multisampling
-				NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
-				0
-			};
-			if ((pf = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs]) == nil) {
+			std::vector<NSOpenGLPixelFormatAttribute> attrs;
+			if (msLevel > 0)
+				attrs = {
+					NSOpenGLPFADoubleBuffer,
+					NSOpenGLPFADepthSize, 24,
+					/*** enable multisampling ***/
+					NSOpenGLPFAMultisample,
+					NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
+					NSOpenGLPFASamples, (NSOpenGLPixelFormatAttribute)msLevel,
+					/****************************/
+					NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+					0
+				};
+			else
+				attrs = {
+					NSOpenGLPFADoubleBuffer,
+					NSOpenGLPFADepthSize, 24,
+					NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+					0
+				};
+			
+			if ((pf = [[NSOpenGLPixelFormat alloc] initWithAttributes:&attrs[0]]) == nil) {
 				NSLog(@"Window: Error creating NSOpenGLPixelFormat");
 				return nil;
 			}
