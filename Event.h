@@ -26,8 +26,8 @@ namespace W {
 			KeyDown, KeyUp,
 			
 			// Positional
-			LMouseUp, LMouseDown, RMouseUp, RMouseDown,		// Mouse
-			TouchDown, TouchMoved, TouchUp, TouchCancelled,	// Touch
+			LMouseUp, LMouseDown, RMouseUp, RMouseDown, MouseMove, // Mouse
+			TouchDown, TouchMoved, TouchUp, TouchCancelled,	       // Touch
 			
 			// Scroll wheel
 			ScrollWheel,
