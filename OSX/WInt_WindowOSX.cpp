@@ -18,14 +18,21 @@ struct WInt_WindowOSX::NativeObjs {
 	XWindow *xwindow;
 };
 
-WInt_WindowOSX::WInt_WindowOSX(
-							   int w, int h,
+int msToInt(W::Multisampling::T ms) {
+	using namespace W::Multisampling;
+	return
+		ms == None ? 0 :
+		ms == X2 ? 2 :
+		ms == X4 ? 4 : 8;
+}
+
+WInt_WindowOSX::WInt_WindowOSX(int w, int h,
 							   const char *t,
 							   WInt_WindowOSX *share,
 							   bool fullscreen,
 							   int screen,
-							   void *winID
-							   )
+							   W::Multisampling::T multisampling,
+							   void *winID)
 {
 	objs = new NativeObjs;
 	objs->xwindow = [[XWindow alloc] initWithWidth:w
@@ -34,7 +41,8 @@ WInt_WindowOSX::WInt_WindowOSX(
 											 title:[NSString stringWithUTF8String:t]
 										fullscreen:fullscreen
 											screen:screen
-										  windowID:winID];
+										  windowID:winID
+								multisamplingLevel:msToInt(multisampling)];
 }
 
 WInt_WindowOSX::~WInt_WindowOSX()

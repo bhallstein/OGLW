@@ -14,17 +14,17 @@
 #define WInt_WindowOSX_h
 
 #include "WInt_WindowAbstr.h"
+#include "Multisampling.h"
 
 class WInt_WindowOSX : public WInt_WindowAbstr {
 public:
-	WInt_WindowOSX(
-				   int w, int h,
+	WInt_WindowOSX(int w, int h,
 				   const char *t,
 				   WInt_WindowOSX *share,
 				   bool fullscreen,
 				   int screen,
-				   void *windowID
-				   );
+				   W::Multisampling::T,
+				   void *windowID);
 	~WInt_WindowOSX();
 	
 	// OGL Context
