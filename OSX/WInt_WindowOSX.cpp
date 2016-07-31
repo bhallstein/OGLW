@@ -127,7 +127,7 @@ struct WInt_WindowOSX::Init {
 			NSRunningApplication *app = [note.userInfo objectForKey:NSWorkspaceApplicationKey];
 			if (app.processIdentifier == [NSRunningApplication currentApplication].processIdentifier) {
 				W::Event ev(W::EventType::AppBecameForeground);
-				W::Event::newEvents.push_back(ev);
+				W::Event::addNewEvent(ev);
 			}
 		};
 		void (^deactivateBlock)(NSNotification*) = ^void (NSNotification *note) {
@@ -135,7 +135,7 @@ struct WInt_WindowOSX::Init {
 			NSRunningApplication *app = [note.userInfo objectForKey:NSWorkspaceApplicationKey];
 			if (app.processIdentifier == [NSRunningApplication currentApplication].processIdentifier) {
 				W::Event ev(W::EventType::AppBecameBackground);
-				W::Event::newEvents.push_back(ev);
+				W::Event::addNewEvent(ev);
 			}
 		};
 		[[[NSWorkspace sharedWorkspace] notificationCenter] addObserverForName:NSWorkspaceDidActivateApplicationNotification

@@ -125,7 +125,8 @@ namespace W {
 		
 		// When event harvesting is on, events are stored in newEvents.
 		// Iterate over them in your update cycle, then clear them.
-		static std::vector<Event> newEvents;
+		static std::vector<Event> getNewEvents();
+		static void addNewEvent(const W::Event &);
 		
 		// Register custom event types using registerType():
 		// .h:   extern W::EventType::T MyEventType;
@@ -135,6 +136,7 @@ namespace W {
 		static KeyCode::T charToKeycode(unsigned int c);
 		
 	private:
+		static std::vector<Event> newEvents;
 		static unsigned int typecounter;
 		
 	};
