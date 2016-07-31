@@ -16,7 +16,6 @@
 #include "WInt_PlatformIdentification.h"
 
 
-
 #ifdef WTARGET_MAC
 	#include "WInt_WindowOSX.h"
 #elif defined WTARGET_WIN
@@ -32,13 +31,14 @@ WInt_WindowAbstr* make_WInt_Window(
 								   WInt_WindowAbstr *share,
 								   bool fullscreen,
 								   int screen,
+								   W::Multisampling::T multisampling,
 								   void *windowID
 								   )
 {
 	WInt_WindowAbstr *win = 0;
 	
 	#ifdef WTARGET_MAC
-		win = new WInt_WindowOSX(w, h, t, (WInt_WindowOSX*)share, fullscreen, screen, windowID);
+		win = new WInt_WindowOSX(w, h, t, (WInt_WindowOSX*)share, fullscreen, screen, multisampling, windowID);
 	#elif defined WTARGET_WIN
 		win = new WInt_WindowWin(w, h, t, (WInt_WindowWin*)share, fullscreen, screen, windowID);
 	#endif

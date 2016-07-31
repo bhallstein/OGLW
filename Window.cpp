@@ -12,7 +12,6 @@
 
 #include "Window.h"
 #include "WInt_WindowAbstr.h"
-#include <iostream>
 
 // Window
 
@@ -22,7 +21,8 @@ W::Window::Window(
 				  const char *title,
 				  Window *share,
 				  bool fullscreen,
-				  int screen
+				  int screen,
+				  Multisampling::T multisampling
 				  )
 {
 	windowAbstr = make_WInt_Window(width,
@@ -31,6 +31,7 @@ W::Window::Window(
 								   share ? share->windowAbstr : 0,
 								   fullscreen,
 								   screen,
+								   multisampling,
 								   (void*)this);
 }
 
@@ -57,6 +58,8 @@ void W::Window::makeFirstResp() { windowAbstr->makeFirstResp(); }
 // Size & pos
 void W::Window::getSize(int *w, int *h) { windowAbstr->getSize(w, h); }
 void W::Window::setSize(int w, int h)   { windowAbstr->setSize(w, h); }
+int W::Window::w() { int w, h; windowAbstr->getSize(&w, &h); return w; }
+int W::Window::h() { int w, h; windowAbstr->getSize(&w, &h); return h; }
 
 void W::Window::getPos(int *x, int *y) { windowAbstr->getPos(x, y); }
 void W::Window::setPos(int x, int y)   { windowAbstr->setPos(x, y); }

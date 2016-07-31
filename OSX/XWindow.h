@@ -11,10 +11,11 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#include "Multisampling.h"
 
 @interface XWindow : NSObject
 
--(instancetype)initWithWidth:(int)w height:(int)h sharedCtx:(XWindow*)s title:(NSString*)t fullscreen:(BOOL)f screen:(int)scrInd windowID:(void*)winID;
+-(instancetype)initWithWidth:(int)w height:(int)h sharedCtx:(XWindow*)s title:(NSString*)t fullscreen:(BOOL)f screen:(int)scrInd windowID:(void*)winID multisamplingLevel:(int)level;
 
 // Context things
 -(void)makeCurrentContext;

@@ -13,10 +13,12 @@
 #ifndef W_Window_h
 #define W_Window_h
 
+#include "Multisampling.h"
+
 class WInt_WindowAbstr;
 
 namespace W {
-
+	
 	class Window {
 	public:
 		Window(
@@ -25,7 +27,8 @@ namespace W {
 			   const char *title,
 			   Window *share,
 			   bool fullscreen,
-			   int screen
+			   int screen,
+			   Multisampling::T multisampling = Multisampling::None
 			   );
 		~Window();
 		
@@ -44,6 +47,8 @@ namespace W {
 		// Size & position
 		void getSize(int *w, int *h);
 		void setSize(int w, int h);
+		int w();
+		int h();
 		
 		void getPos(int *x, int *y);
 		void setPos(int x, int y);

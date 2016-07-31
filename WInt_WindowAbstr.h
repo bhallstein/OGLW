@@ -18,6 +18,8 @@
 #ifndef WInt_WindowAbstr_h
 #define WInt_WindowAbstr_h
 
+#include "Multisampling.h"
+
 class WInt_WindowAbstr {
 public:
 	virtual ~WInt_WindowAbstr() { }
@@ -64,6 +66,7 @@ WInt_WindowAbstr* make_WInt_Window(
 								   WInt_WindowAbstr *share,
 								   bool fullscreen,
 								   int screen,
+								   W::Multisampling::T,
 								   void *windowID	// Pointer to the W::Window, for OS X event passing, & ...?
 								  );
 // If position is -ve, window will be centred
