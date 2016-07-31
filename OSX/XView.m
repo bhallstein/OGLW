@@ -23,7 +23,7 @@
 
 @synthesize clickThrough;
 
--(instancetype)initWithFrame:(NSRect)f clickThrough:(BOOL)c windowID:(void *)winID {
+-(instancetype)initWithFrame:(NSRect)f clickThrough:(BOOL)c windowID:(void*)winID {
 	if (self = [super initWithFrame:f]) {
 		clickThrough = c;
 		windowID = winID;
@@ -113,6 +113,10 @@ void addKeyEventIfOn(W::EventType::T type, W::Event::KeyEvent info) {
 	ev.scrollEvent = { (float)nsev.deltaX, (float)nsev.deltaY, (W::Window*)windowID };
 	W::Event::newEvents.push_back(ev);
 }
+//-(void)magnifyWithEvent:(NSEvent *)nsev {
+//	if (!W::Event::on) return;
+//	printf("%5.1f\n", nsev.magnification);
+//}
 
 -(BOOL)acceptsFirstMouse:(NSEvent *)ev {
 	return clickThrough;
