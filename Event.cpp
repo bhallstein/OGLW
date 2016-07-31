@@ -13,6 +13,7 @@
 #include "Event.h"
 #include "WInt_PlatformIdentification.h"
 #include "Cocoa/Cocoa.h"
+#include "WInt_WindowAbstr.h"
 
 #pragma mark - Constructor
 
@@ -55,11 +56,40 @@ bool W::Event::is_positional() const {
 void W::Event::addNewEvent(const W::Event &ev) {
 	newEvents.push_back(ev);
 }
+
+// Mousemove event tracking
+int mx_prev = -10000, my_prev = -10000;
+void *win_prev = NULL;
+
 std::vector<W::Event> W::Event::getNewEvents() {
 	auto _newEvents = newEvents;
 	newEvents.clear();
 	
 	// Generate mousemove event
+	if (winabstr_registry.size() > 0) {
+		if (winabstr_registry[0] != win_prev) {
+			mx_prev = mx_prev = -10000;
+			win_prev = winabstr_registry[0];
+		}
+		else {
+			int mx, my;
+			WInt_WindowAbstr *win = winabstr_registry[0];
+			win->getMousePosition(&mx, &my);
+			
+			int dx = mx - mx_prev, dy = my - my_prev;
+			if (!(dx == 0 && dy == 0)) {
+				W::Event ev_mm(W::EventType::MouseMove);
+				ev_mm.mouseEvent.x = mx;
+				ev_mm.mouseEvent.y = my;
+				
+				_newEvents.push_back(ev_mm);
+			}
+			
+			mx_prev = mx;
+			my_prev = my;
+			win_prev = win;
+		}
+	}
 	
 	return _newEvents;
 }
