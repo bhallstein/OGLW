@@ -225,6 +225,9 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 -(void)setTitle:(const char *)t {
 	[self.nswin setTitle:[NSString stringWithUTF8String:t]];
 }
+-(void)close {
+	[self.nswin close];
+}
 
 // Size & position
 -(void)getSizeW:(int *)w H:(int *)h {

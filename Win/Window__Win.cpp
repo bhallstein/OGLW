@@ -1,16 +1,4 @@
-/*
- * W - simple cross-platform OpenGL windows
- *
- * ======================
- *  WInt_WindowWin.cpp
- * ======================
- *
- * Copyright (C) 2012 - Ben Hallstein - http://ben.am
- * Published under the MIT license: http://opensource.org/licenses/MIT
- *
- */
-
-#include "WInt_WindowWin.h"
+#include "Window.h"
 #include "Event.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -21,14 +9,14 @@
 
 
 // Window creation method declaration
-GLFWwindow* WInt_createWindow(
+GLFWwindow* create_glfw_window(
 	int w,
 	int h,
 	const char *t,
 	GLFWwindow* share,
 	bool fullscreen,
 	int screenInd,
-	WInt_WindowWin *userPointer
+	Window *userPointer
 );
 
 
@@ -47,55 +35,53 @@ void cb_KeyCallback(GLFWwindow*, int key, int scancode, int action, int modifier
 void cb_CharCallback(GLFWwindow*, int unicode_code_point);
 
 
-// NativeObjs
+// PlatformSpecificState
 
-struct WInt_WindowWin::NativeObjs {
-	NativeObjs() : win(NULL) { }
+struct Window::PlatformSpecificState {
+	PlatformSpecificState() : win(NULL), glfw_window(NULL) { }
 	
-	GLFWwindow *win;
+	Window *window;
+	GLFWwindow *gflw_window;
 
 	bool currentlyFullscreen;
-	int prevW, prevH;
+	int prevW;
+	int prevH;
 	std::string title;
 	int currentScreenIndex;
-
-	void *winID;
 };
 
 
 // GLFW init
 
-struct WInt_WindowWin::Init {
+struct Window::Init {
 	Init() { glfwInit(); }
 };
-WInt_WindowWin::Init *WInt_WindowWin::init = new WInt_WindowWin::Init;
+Window::Init *Window::init = new Window::Init;
 
 
-// WInt_WindowWin
+// Window
 
-WInt_WindowWin::WInt_WindowWin(
+Window::Window(
 	int width,
 	int height,
 	const char *title,
-	WInt_WindowWin *share,
+	Window *share,
 	bool fullscreen,
-	int screenInd,
-	void *windowID
+	int screenInd
 )
 {
-	objs = new NativeObjs();
+	objs = new PlatformSpecificState();
 	objs->title = title;
 	objs->prevW = width;
 	objs->prevH = height;
 	objs->currentlyFullscreen = fullscreen;
 	objs->currentScreenIndex = screenInd;
-	objs->winID = windowID;
-
-	objs->win = WInt_createWindow(
+	objs->window = this;
+	objs->gflw_window = create_glfw_window(
 		width,		// ignored when creating fullscreen window 
 		height,		// 
 		title,
-		share ? share->objs->win : NULL,
+		share ? share->objs->window : NULL,
 		fullscreen,
 		screenInd,
 		this
@@ -105,114 +91,123 @@ WInt_WindowWin::WInt_WindowWin(
 	//     glfwSetInputMode: GLFW_CURSOR, GLFW_CURSOR_NORMAL/HIDDEN/DISABLED (auto-sets invis and always centred)
 }
 
-WInt_WindowWin::~WInt_WindowWin()
+Window::~Window()
 {
 	glfwDestroyWindow(objs->win);
 }
 
 
 // Context
-void WInt_WindowWin::makeCurrentContext() {
-	glfwMakeContextCurrent(objs->win);
+void Window::makeCurrentContext() {
+	glfwMakeContextCurrent(objs->glfw_window);
 }
-void WInt_WindowWin::clearCurrentContext() {
+void Window::clearCurrentContext() {
 	glfwMakeContextCurrent(NULL);
 }
-void WInt_WindowWin::flushBuffer() {
-	glfwSwapBuffers(objs->win);
+void Window::flushBuffer() {
+	glfwSwapBuffers(objs->glfw_window);
 }
 
 // Window attribs
-void WInt_WindowWin::setTitle(const char *t) {
+void Window::setTitle(const char *t) {
 	objs->title = t;
-	glfwSetWindowTitle(objs->win, t);
+	glfwSetWindowTitle(objs->glfw_window, t);
 }
 
 // Respondery
-void WInt_WindowWin::bringToFront() {
-	HWND winHandle = glfwGetWin32Window(objs->win);
+void Window::bringToFront() {
+	HWND winHandle = glfwGetWin32Window(objs->glfw_window);
 	SetForegroundWindow(winHandle);
 }
-void WInt_WindowWin::makeFirstResp() {
-	HWND winHandle = glfwGetWin32Window(objs->win);
+void Window::makeFirstResp() {
+	HWND winHandle = glfwGetWin32Window(objs->glfw_window);
 	SetFocus(winHandle);
 }
 
 // Size & position
-void WInt_WindowWin::getSize(int *w, int *h) {
-	glfwGetWindowSize(objs->win, w, h);
+void Window::getSize(int *w, int *h) {
+	glfwGetWindowSize(objs->glfw_window, w, h);
 }
-void WInt_WindowWin::setSize(int w, int h) {
-	glfwSetWindowSize(objs->win, w, h);
+void Window::setSize(int w, int h) {
+	glfwSetWindowSize(objs->glfw_window, w, h);
 }
 
-void WInt_WindowWin::getPos(int *x, int *y) {
+void Window::getPos(int *x, int *y) {
 	int winX, winY, monX, monY, nMons;
 	int curScreen = getScreen();
 
-	glfwGetWindowPos(objs->win, &winX, &winY);	
+	glfwGetWindowPos(objs->glfw_window, &winX, &winY);	
 	GLFWmonitor **mons = glfwGetMonitors(&nMons);
 	glfwGetMonitorPos(mons[curScreen], &monX, &monY);
 
 	*x = winX - monX;
 	*y = winY - monY;
 }
-void WInt_WindowWin::setPos(int x, int y) {
-	int nMons, monX, monY;
+void Window::setPos(int x, int y) {
+	int nMons;
+	int monX;
+	int monY;
 	int curScreen = getScreen();
 
 	GLFWmonitor **mons = glfwGetMonitors(&nMons);
 	glfwGetMonitorPos(mons[curScreen], &monX, &monY);
 
-	glfwSetWindowPos(objs->win, x + monX, y + monY);
+	glfwSetWindowPos(objs->glfw_window, x + monX, y + monY);
 }
 
-int WInt_WindowWin::getScreen() {
+int Window::getScreen() {
 	int i;
 	// In fullscreen mode, we can use glfwGetWindowMonitor()
 	if (objs->currentlyFullscreen) {
 		int nMonitors;
 		GLFWmonitor **mons = glfwGetMonitors(&nMonitors);
-		GLFWmonitor *curMonitor = glfwGetWindowMonitor(objs->win);
-		for (i=0; i < nMonitors; ++i)
-			if (mons[i] == curMonitor)
+		GLFWmonitor *curMonitor = glfwGetWindowMonitor(objs->glfw_window);
+		for (i=0; i < nMonitors; ++i) {
+			if (mons[i] == curMonitor) {
 				break;
+			}
+		}
 	}
 	// In windowed mode, find monitor whose frame encompasses the window's position
 	else {
-		int winX, winY, nMonitors;
-		glfwGetWindowPos(objs->win, &winX, &winY);
+		int winX;
+		int winY;
+		int nMonitors;
+		glfwGetWindowPos(objs->glfw_window, &winX, &winY);
 		GLFWmonitor **mons = glfwGetMonitors(&nMonitors);
 		for (i=0; i < nMonitors; ++i) {
-			int monX, monY;
+			int monX;
+			int monY;
 			glfwGetMonitorPos(mons[i], &monX, &monY);
 			const GLFWvidmode *vidMode = glfwGetVideoMode(mons[i]);
-			if (winX >= monX && winY >= monY && winX < monX + vidMode->width && winY < monY + vidMode->height)
+			if (winX >= monX && winY >= monY && winX < monX + vidMode->width && winY < monY + vidMode->height) {
 				break;
+			}
 		}
 	}
 	return i;
 }
-void WInt_WindowWin::setScreen(int newScreenInd) {
+void Window::setScreen(int newScreenInd) {
 	int nMons;
 	GLFWmonitor **mons = glfwGetMonitors(&nMons);
-	if (newScreenInd >= nMons || newScreenInd < 0)
+	if (newScreenInd >= nMons || newScreenInd < 0) {
 		newScreenInd = 0;
+	}
 
 	// In fullscreen mode, have to create new window & destroy existing
 	if (objs->currentlyFullscreen) {
 		// Create new window in fullscreen on new screen
-		GLFWwindow *newWindow = WInt_createWindow(
+		GLFWwindow *newWindow = create_glfw_window(
 			0, 0,
 			objs->title.c_str(),
-			objs->win,
+			objs->glfw_window,
 			true,
 			newScreenInd,
 			this
 		);
 		// Destroy previous
-		glfwDestroyWindow(objs->win);
-		objs->win = newWindow;
+		glfwDestroyWindow(objs->glfw_window);
+		objs->glfw_window = newWindow;
 	}
 	// In windowed mode, get current window position, correct to reflect desired monitor
 	else {
@@ -222,62 +217,66 @@ void WInt_WindowWin::setScreen(int newScreenInd) {
 		glfwGetMonitorPos(mons[newScreenInd], &x2, &y2);
 		
 		int winX, winY;
-		glfwGetWindowPos(objs->win, &winX, &winY);
-		glfwSetWindowPos(objs->win, winX - x1 + x2, winY - y1 + y2);
+		glfwGetWindowPos(objs->glfw_window, &winX, &winY);
+		glfwSetWindowPos(objs->glfw_window, winX - x1 + x2, winY - y1 + y2);
 	}
 }
 
-void WInt_WindowWin::goFullscreen() {
-	if (objs->currentlyFullscreen) return;
+void Window::goFullscreen() {
+	if (objs->currentlyFullscreen) {
+		return;
+	}
 	
 	// Save previous window properties
-	glfwGetWindowSize(objs->win, &objs->prevW, &objs->prevH);
+	glfwGetWindowSize(objs->glfw_window, &objs->prevW, &objs->prevH);
 
 	// Create new in fullscreen on cur screen
-	GLFWwindow *newWindow = WInt_createWindow(
+	GLFWwindow *newWindow = create_glfw_window(
 		0, 0,		// w/h ignored in fullscre
 		objs->title.c_str(),
-		objs->win,
+		objs->glfw_window,
 		true,
 		objs->currentScreenIndex,
 		this
 	);
 
 	// Destroy previous
-	glfwDestroyWindow(objs->win);
+	glfwDestroyWindow(objs->glfw_window);
 
-	objs->win = newWindow;
+	objs->glfw_window = newWindow;
 	objs->currentlyFullscreen = true;
 }
-void WInt_WindowWin::goWindowed() {
-	if (!objs->currentlyFullscreen) return;
+void Window::goWindowed() {
+	if (!objs->currentlyFullscreen) {
+		return;
+	}
 
 	// Create windowed at prev size
-	GLFWwindow *newWindow = WInt_createWindow(
+	GLFWwindow *newWindow = create_glfw_window(
 		objs->prevW,
 		objs->prevH,
 		objs->title.c_str(),
-		objs->win,
+		objs->glfw_window,
 		false,
 		getScreen(),
 		this
 	);
 
 	// Destroy previous
-	glfwDestroyWindow(objs->win);
+	glfwDestroyWindow(objs->glfw_window);
 
-	objs->win = newWindow;
+	objs->glfw_window = newWindow;
 	objs->currentlyFullscreen = false;
 }
-bool WInt_WindowWin::isInFullscreenMode() {
+bool Window::isInFullscreenMode() {
 	return objs->currentlyFullscreen;
 }
 
 // Mouse
-bool WInt_WindowWin::mouseIsOver() {
+bool Window::mouseIsOver() {
 	// Get size of window & its position on the virtual screen
 	int winNativeX, winNativeY, winW, winH;
-	glfwGetWindowPos(objs->win, &winNativeX, &winNativeY);
+	glfwGetWindowPos(objs->glfw_window, &winNativeX, &winNativeY);
 	getSize(&winW, &winH);
 
 	// Get the position of the mouse on the virtual screen
@@ -289,45 +288,46 @@ bool WInt_WindowWin::mouseIsOver() {
 		nativeMPos.x < winNativeX + winW && nativeMPos.y < winNativeY + winH
 	);
 }
-void WInt_WindowWin::getMousePosition(int *x, int *y) {
+void Window::getMousePosition(int *x, int *y) {
 	double mouseX, mouseY;
-	glfwGetCursorPos(objs->win, &mouseX, &mouseY);
+	glfwGetCursorPos(objs->glfw_window, &mouseX, &mouseY);
 	*x = (int) mouseX;
 	*y = (int) mouseY;
 }
-void WInt_WindowWin::setMousePosition(int x, int y) {
-	glfwSetCursorPos(objs->win, (double)x, (double)y);
+void Window::setMousePosition(int x, int y) {
+	glfwSetCursorPos(objs->glfw_window, (double)x, (double)y);
 }
 
 // Events
-void WInt_WindowWin::getEvents() {
+void Window::getEvents() {
 	glfwPollEvents();
 }
 
 
 // Window creation helper impl.
 
-GLFWwindow* WInt_createWindow(
+GLFWwindow* create_glfw_window(
 	int w,
 	int h,
 	const char *t,
 	GLFWwindow* share,
 	bool fullscreen,
 	int screenInd,
-	WInt_WindowWin *userPointer		// user pointer of GLFW window is our WindowWin object, so we can set the required
-									// properties on W window/mouse events
+	Window *userPointer
 ) {
-	GLFWwindow *win;
+	GLFWwindow *glfw_window;
 
 	// Get screen
 	GLFWmonitor *mon;
-	if (screenInd == 0)
+	if (screenInd == 0) {
 		mon = glfwGetPrimaryMonitor();
+	}
 	else {
 		int n;
 		GLFWmonitor **monitors = glfwGetMonitors(&n);
-		if (screenInd >= n || screenInd < 0)
+		if (screenInd >= n || screenInd < 0) {
 			screenInd = 0;
+		}
 		mon = monitors[screenInd];
 	}
 
@@ -341,56 +341,56 @@ GLFWwindow* WInt_createWindow(
 		const GLFWvidmode *monVidMode;
 		monVidMode = glfwGetVideoMode(mon);
 
-		win = glfwCreateWindow(monVidMode->width, monVidMode->height, t, mon, share);
+		glfw_window = glfwCreateWindow(monVidMode->width, monVidMode->height, t, mon, share);
 	}
 	else {
 		// Create window, centered on spec. monitor
-		int monX, monY;
+		int monX;
+		int monY;
 		const GLFWvidmode *vidmode;
 		glfwGetMonitorPos(mon, &monX, &monY);
 		vidmode = glfwGetVideoMode(mon);
 
-		win = glfwCreateWindow(w, h, t, NULL, share);
-		glfwSetWindowPos(win, monX + (vidmode->width - w)/2, monY + (vidmode->height - h)/2);
+		glfw_window = glfwCreateWindow(w, h, t, NULL, share);
+		glfwSetWindowPos(glfw_window, monX + (vidmode->width - w)/2, monY + (vidmode->height - h)/2);
 	}
 
 	// Set user pointer
-	glfwSetWindowUserPointer(win, userPointer);
+	glfwSetWindowUserPointer(glfw_window, userPointer);
 
 	// Set window callback functions
-	glfwSetWindowCloseCallback(win, cb_WindowClose);
-	glfwSetWindowFocusCallback(win, cb_WindowFocus);
-	glfwSetWindowIconifyCallback(win, cb_WindowMinimise);
-	glfwSetWindowSizeCallback(win, cb_WindowResize);
+	glfwSetWindowCloseCallback(glfw_window, cb_WindowClose);
+	glfwSetWindowFocusCallback(glfw_window, cb_WindowFocus);
+	glfwSetWindowIconifyCallback(glfw_window, cb_WindowMinimise);
+	glfwSetWindowSizeCallback(glfw_window, cb_WindowResize);
 
 	// Set mouse callback functions
-	glfwSetMouseButtonCallback(win, cb_MouseButton);
-	glfwSetScrollCallback(win, cb_ScrollWheel);
+	glfwSetMouseButtonCallback(glfw_window, cb_MouseButton);
+	glfwSetScrollCallback(glfw_window, cb_ScrollWheel);
 	
-	return win;
+	return glfw_window;
 }
 
 
 // Window event callback function impls
 
-void _addWinEvent(W::EventType::T type, void *winID) {
+void _addWinEvent(W::EventType::T type, W::Window *window) {
 	if (W::Event::on) {
 		W::Event ev(type);
-		ev.winEvent.window = (W::Window*) winID;
+		ev.winEvent.window = window;
 		W::Event::newEvents.push_back(ev);
 	}
 }
 
 void cb_WindowFocus(GLFWwindow *w, int focused) {
-	WInt_WindowWin *win = (WInt_WindowWin*) glfwGetWindowUserPointer(w);
-	void *winID = win->objs->winID;
+	Window *win = (Window*) glfwGetWindowUserPointer(w);
 
 	_addWinEvent(
 		focused ? W::EventType::WinBecameKey : W::EventType::WinStoppedBeingKey,
-		winID
+		win
 	);
 
-	// Generate application fore/background events
+	// Generate application foreground & background events
 	if (W::Event::on) {
 		HWND foregroundWinHandle = GetForegroundWindow();
 		// If the foreground window handle is null, consider us to be losing foreground
@@ -417,47 +417,46 @@ void cb_WindowFocus(GLFWwindow *w, int focused) {
 	}
 }
 void cb_WindowMinimise(GLFWwindow *w, int minimised) {
-	WInt_WindowWin *win = (WInt_WindowWin*) glfwGetWindowUserPointer(w);
-	void *winID = win->objs->winID;
-
+	Window *win = (Window*) glfwGetWindowUserPointer(w);
 	_addWinEvent(
 		minimised ? W::EventType::WinMinimized : W::EventType::WinDeminimized,
-		winID
+		win
 	);
 }
 void cb_WindowResize(GLFWwindow *w, int width, int height) {
-	WInt_WindowWin *win = (WInt_WindowWin*) glfwGetWindowUserPointer(w);
-	void *winID = win->objs->winID;
-
-	_addWinEvent(W::EventType::WinResized, winID);
+	Window *win = (Window*) glfwGetWindowUserPointer(w);
+	_addWinEvent(W::EventType::WinResized, win);
 }
 void cb_WindowClose(GLFWwindow *w) {
-	WInt_WindowWin *win = (WInt_WindowWin*) glfwGetWindowUserPointer(w);
-	void *winID = win->objs->winID;
-
-	_addWinEvent(W::EventType::WinClosed, winID);
+	Window *win = (Window*) glfwGetWindowUserPointer(w);
+	_addWinEvent(W::EventType::WinClosed, win);
 }
 
 
 // Mouse event callback implementations:
 
 void cb_MouseButton(GLFWwindow *w, int button, int action, int modifierKeys) {
-	if (!W::Event::on) return;
+	if (!W::Event::on) {
+		return;
+	}
 
-	WInt_WindowWin *win = (WInt_WindowWin*) glfwGetWindowUserPointer(w);
-	void *winID = win->objs->winID;
+	Window *win = (Window*) glfwGetWindowUserPointer(w);
 
-	W::EventType::T evType = -1;
-	if (button == GLFW_MOUSE_BUTTON_LEFT)
-		evType = (action == GLFW_PRESS ? W::EventType::LMouseDown : W::EventType::LMouseUp);
-	else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-		evType = (action == GLFW_PRESS ? W::EventType::RMouseDown : W::EventType::RMouseUp);
+	W::EventType::T type;
+	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+		type = (action == GLFW_PRESS ? W::EventType::LMouseDown : W::EventType::LMouseUp);
+	}
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+		type = (action == GLFW_PRESS ? W::EventType::RMouseDown : W::EventType::RMouseUp);
+	}
+	else {
+		return;
+	}
 
-	if (evType == -1) return;
-
-	W::Event ev(evType);
-	ev.mouseEvent.window = (W::Window*) winID;
-	double mouseX, mouseY;
+	W::Event ev(type);
+	ev.mouseEvent.window = win;
+	double mouseX;
+	double mouseY;
 	glfwGetCursorPos(w, &mouseX, &mouseY);
 	ev.mouseEvent.x = (int) mouseX;
 	ev.mouseEvent.y = (int) mouseY;
@@ -465,13 +464,14 @@ void cb_MouseButton(GLFWwindow *w, int button, int action, int modifierKeys) {
 	W::Event::newEvents.push_back(ev);
 }
 void cb_ScrollWheel(GLFWwindow *w, double x, double y) {
-	if (!W::Event::on) return;
+	if (!W::Event::on) {
+		return;
+	}
 
-	WInt_WindowWin *win = (WInt_WindowWin*) glfwGetWindowUserPointer(w);
-	void *winID = win->objs->winID;
+	Window *win = (Window*) glfwGetWindowUserPointer(w);
 
 	W::Event ev(W::EventType::ScrollWheel);
-	ev.scrollEvent.window = (W::Window*) winID;
+	ev.scrollEvent.window = win;
 	ev.scrollEvent.dx = (float) x;
 	ev.scrollEvent.dy = (float) y;
 
@@ -481,12 +481,20 @@ void cb_ScrollWheel(GLFWwindow *w, double x, double y) {
 // Key callback function impl.:
 extern W::KeyCode::T _translGLFWToKeyCode(int glfwKey);
 void cb_KeyCallback(GLFWwindow *w, int key, int scancode, int action, int modifierKeys) {
-	if (!W::Event::on) return;
+	if (!W::Event::on) {
+		return;
+	}
 
-	W::EventType::T type = -1;
-	if (action == GLFW_PRESS)        type = W::EventType::KeyDown;
-	else if (action == GLFW_RELEASE) type = W::EventType::KeyUp;
-	if (type == -1) return;
+	W::EventType::T type;
+	if (action == GLFW_PRESS) {
+		type = W::EventType::KeyDown;
+	}
+	else if (action == GLFW_RELEASE) {
+		type = W::EventType::KeyUp;
+	}
+	else {
+		return;
+	}
 
 	W::Event ev(type);
 	ev.keyEvent.keyCode = _translGLFWToKeyCode(key);
@@ -503,3 +511,4 @@ void cb_KeyCallback(GLFWwindow *w, int key, int scancode, int action, int modifi
 //		- process events
 //		- update
 //		- draw
+ 

@@ -26,6 +26,7 @@
 -(void)bringToFront;
 -(void)makeFirstResponder;
 -(void)setTitle:(const char *)t;
+-(void)close;
 
 // Size & position
 -(void)getSizeW:(int*)w H:(int*)h;
