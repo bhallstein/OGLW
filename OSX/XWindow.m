@@ -332,15 +332,13 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	int mX, mY;
 	[self getMousePositionX:&mX Y:&mY];
 	NSRect contentRect = [self.nswin contentRectForFrameRect:self.nswin.frame];
-	return (
-			mX >= 0 && mY >= 0 &&
-			mX < contentRect.size.width && mY < contentRect.size.height
-			);
+	return mX >= 0 && mY >= 0 && mX < contentRect.size.width && mY < contentRect.size.height;
 }
 -(void)getMousePositionX:(int *)x Y:(int *)y {
 	NSPoint p = self.nswin.mouseLocationOutsideOfEventStream;
 	[self.view convertNSWindowToWCoords:&p];
-	*x = p.x, *y = p.y;
+	*x = p.x;
+	*y = p.y;
 }
 -(void)setMousePositionX:(int)x Y:(int)y {
 	// Convert from W to NSView coords (origin at btm left)
@@ -350,8 +348,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	NSRect winOrigin = [self.nswin convertRectToScreen:NSMakeRect(0, 0, 0, 0)];
 	int xN = x + winOrigin.origin.x;
 	yN = [NSScreen mainScreen].frame.size.height - winOrigin.origin.y - yN;
-//	winOrigin.origin.y = nswin.screen.frame.size.height - rctConv.origin.y - y;
-//	
+
 	CGWarpMouseCursorPosition(CGPointMake(xN, yN));
 }
 
