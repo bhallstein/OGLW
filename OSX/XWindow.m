@@ -251,8 +251,8 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	newFrameRect.origin.y = nY;
 	
 	[self.nswin setFrame:newFrameRect display:YES];
-#pragma message("Limit the size of the window to the size of the screen?")
-#pragma message("Could also automatically readjust position?")
+  // TODO: Limit the size of the window to the size of the screen?"
+  // Could also automatically readjust position?
 }
 
 -(void)getPosX:(int*)x Y:(int*)y {
@@ -263,7 +263,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 	getNativeWindowOriginForWOriginOnScreen(&nativeX, &nativeY, x, y, self.nswin.frame.size.height, self.nswin.screen);
 	NSRect newFrameRect = NSMakeRect(nativeX, nativeY, self.nswin.frame.size.width, self.nswin.frame.size.height);
 	[self.nswin setFrame:newFrameRect display:YES];
-#pragma message("Could auto-position to fit entirely on the screen?")
+  // TODO: Could auto-position to fit entirely on the screen?
 }
 
 -(int)getScreen {
