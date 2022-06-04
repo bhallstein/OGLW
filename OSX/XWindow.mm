@@ -1,15 +1,3 @@
-/*
- * W - simple cross-platform OpenGL windows
- *
- * =============
- *  XWindow.m
- * =============
- *
- * Copyright (C) 2012 - Ben Hallstein - http://ben.am
- * Published under the MIT license: http://opensource.org/licenses/MIT
- *
- */
-
 #import "XWindow.h"
 #import "XView.h"
 #import "XWindowDelegate.h"

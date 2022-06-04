@@ -1,17 +1,5 @@
-/*
- * W - simple cross-platform OpenGL windows
- *
- * ============
- *  Window.h
- * ============
- *
- * Copyright (C) 2012 - Ben Hallstein - http://ben.am
- * Published under the MIT license: http://opensource.org/licenses/MIT
- *
- */
-
-#ifndef W_Window_h
-#define W_Window_h
+#ifndef WWindow_h
+#define WWindow_h
 
 #include <vector>
 #include <algorithm>

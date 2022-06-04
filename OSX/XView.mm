@@ -46,7 +46,9 @@
 #pragma mark - Event handling
 
 void addMouseEventIfOn(W::EventType::T type, W::Event::MouseEvent info) {
-	if (!W::Event::on) return;
+  if (!W::Event::on) {
+    return;
+  }
 	
 	W::Event ev(type);
 	ev.mouseEvent = info;

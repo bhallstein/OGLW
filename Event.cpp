@@ -1,17 +1,5 @@
-/*
- * W - simple cross-platform OpenGL windows
- *
- * =============
- *  Event.cpp
- * =============
- *
- * Copyright (C) 2012 - Ben Hallstein - http://ben.am
- * Published under the MIT license: http://opensource.org/licenses/MIT
- *
- */
-
 #include "Event.h"
-#include "WInt_PlatformIdentification.h"
+#include "PlatformIdentification.h"
 #include "Cocoa/Cocoa.h"
 #include "Window.h"
 

@@ -1,15 +1,3 @@
-/*
- * W - simple cross-platform OpenGL windows
- *
- * =====================
- *  XWindowDelegate.m
- * =====================
- *
- * Copyright (C) 2012 - Ben Hallstein - http://ben.am
- * Published under the MIT license: http://opensource.org/licenses/MIT
- *
- */
-
 #import "XWindowDelegate.h"
 #include "Event.h"
 
@@ -22,8 +10,9 @@
 @implementation XWindowDelegate
 
 -(instancetype) initWithWindowID:(void *)winID {
-	if (self = [super init])
+  if (self = [super init]) {
 		windowID = winID;
+  }
 	return self;
 }
 

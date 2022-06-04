@@ -1,17 +1,5 @@
-/*
- * W - simple cross-platform OpenGL windows
- *
- * ===========
- *  Event.h
- * ===========
- *
- * Copyright (C) 2012 - Ben Hallstein - http://ben.am
- * Published under the MIT license: http://opensource.org/licenses/MIT
- *
- */
-
-#ifndef W_Event_h
-#define W_Event_h
+#ifndef WEvent_h
+#define WEvent_h
 
 #include <vector>
 

@@ -1,17 +1,5 @@
-/*
- * W - simple cross-platform OpenGL windows
- *
- * ===================
- *  Multisampling.h
- * ===================
- *
- * Copyright (C) 2012 - Ben Hallstein - http://ben.am
- * Published under the MIT license: http://opensource.org/licenses/MIT
- *
- */
-
-#ifndef __Multisampling_h
-#define __Multisampling_h
+#ifndef WMultisampling_h
+#define WMultisampling_h
 
 namespace W {
 	namespace Multisampling {

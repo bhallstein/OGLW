@@ -23,8 +23,7 @@ W::Window::Window(int width,
 									W::Window *share,
 									bool fullscreen,
 									int screen,
-									W::Multisampling::T multisampling)
-{
+									W::Multisampling::T multisampling) {
 	objs = new PlatformSpecificState;
 	objs->xwindow = [[XWindow alloc] initWithWidth:width
 																					height:height
@@ -34,12 +33,10 @@ W::Window::Window(int width,
 																					screen:screen
 																				windowID:this
 															multisamplingLevel:msToInt(multisampling)];
-
 	register_window(this);
 }
 
-W::Window::~Window()
-{
+W::Window::~Window() {
 	deregister_window(this);
 	[objs->xwindow close];
 	delete objs;
