@@ -119,6 +119,7 @@ NSRect centredRectForFrameRectOnScreen(NSRect rct, NSScreen *nsscreen) {
 												styleMask:styleMask
 												  backing:NSBackingStoreBuffered
 													defer:NO];
+			[self.nswin setReleasedWhenClosed:NO];
 			[self.nswin setFrame:frameRect display:YES];
 		}
 		
